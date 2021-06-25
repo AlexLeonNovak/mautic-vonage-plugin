@@ -9,12 +9,12 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\LeadBundle\Event\ContactIdentificationEvent;
 use Mautic\LeadBundle\LeadEvents;
-use Mautic\SmsBundle\Entity\Stat;
-use Mautic\SmsBundle\Entity\StatRepository;
+use MauticPlugin\MauticVonageBundle\Entity\Stat;
+use MauticPlugin\MauticVonageBundle\Entity\StatRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TrackingSubscriber implements EventSubscriberInterface
@@ -47,19 +47,19 @@ class TrackingSubscriber implements EventSubscriberInterface
         $clickthrough = $event->getClickthrough();
 
         // Nothing left to identify by so stick to the tracked lead
-        if (empty($clickthrough['channel']['sms']) && empty($clickthrough['stat'])) {
+        if (empty($clickthrough['channel']['message']) && empty($clickthrough['message_stat'])) {
             return;
         }
 
         /** @var Stat $stat */
-        $stat = $this->statRepository->findOneBy(['trackingHash' => $clickthrough['stat']]);
+        $stat = $this->statRepository->findOneBy(['trackingHash' => $clickthrough['message_stat']]);
 
         if (!$stat) {
             // Stat doesn't exist so use the tracked lead
             return;
         }
 
-        if ($stat->getSms() && (int) $stat->getSms()->getId() !== (int) $clickthrough['channel']['sms']) {
+        if ($stat->getMessage() && (int) $stat->getMessage()->getId() !== (int) $clickthrough['channel']['message']) {
             // ID mismatch - fishy so use tracked lead
             return;
         }
@@ -68,6 +68,6 @@ class TrackingSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->setIdentifiedContact($contact, 'sms');
+        $event->setIdentifiedContact($contact, 'message');
     }
 }

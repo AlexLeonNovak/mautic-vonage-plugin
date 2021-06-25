@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Controller;
+namespace MauticPlugin\MauticVonageBundle\Controller;
 
-use Mautic\SmsBundle\Callback\HandlerContainer;
-use Mautic\SmsBundle\Exception\CallbackHandlerNotFound;
-use Mautic\SmsBundle\Helper\ReplyHelper;
+use MauticPlugin\MauticVonageBundle\Callback\HandlerContainer;
+use MauticPlugin\MauticVonageBundle\Exception\CallbackHandlerNotFound;
+use MauticPlugin\MauticVonageBundle\Helper\ReplyHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

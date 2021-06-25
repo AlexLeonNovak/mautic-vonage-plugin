@@ -9,9 +9,9 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Form\Type;
+namespace MauticPlugin\MauticVonageBundle\Form\Type;
 
-use Mautic\SmsBundle\Sms\TransportChain;
+use MauticPlugin\MauticVonageBundle\Sms\TransportChain;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -49,7 +49,7 @@ class ConfigType extends AbstractType
             $choices[$this->translator->trans($transportServiceId)] = $transportServiceId;
         }
 
-        $builder->add('sms_transport', ChoiceType::class, [
+        $builder->add('vonage_transport', ChoiceType::class, [
             'label'      => 'mautic.sms.config.select_default_transport',
             'label_attr' => ['class' => 'control-label'],
             'attr'       => [

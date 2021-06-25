@@ -9,17 +9,17 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\CampaignBundle\CampaignEvents;
 use Mautic\CampaignBundle\Event\CampaignBuilderEvent;
 use Mautic\CampaignBundle\Event\DecisionEvent;
 use Mautic\CampaignBundle\Executioner\RealTimeExecutioner;
-use Mautic\SmsBundle\Event\ReplyEvent;
-use Mautic\SmsBundle\Form\Type\CampaignReplyType;
-use Mautic\SmsBundle\Helper\ReplyHelper;
-use Mautic\SmsBundle\Sms\TransportChain;
-use Mautic\SmsBundle\SmsEvents;
+use MauticPlugin\MauticVonageBundle\Event\ReplyEvent;
+use MauticPlugin\MauticVonageBundle\Form\Type\CampaignReplyType;
+use MauticPlugin\MauticVonageBundle\Helper\ReplyHelper;
+use MauticPlugin\MauticVonageBundle\Sms\TransportChain;
+use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -27,7 +27,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CampaignReplySubscriber implements EventSubscriberInterface
 {
-    const TYPE = 'sms.reply';
+    const TYPE = 'vonage.reply';
 
     /**
      * @var TransportChain
@@ -69,8 +69,8 @@ class CampaignReplySubscriber implements EventSubscriberInterface
         $event->addDecision(
             self::TYPE,
             [
-                'label'       => 'mautic.campaign.sms.reply',
-                'description' => 'mautic.campaign.sms.reply.tooltip',
+                'label'       => 'mautic.campaign.vonage.reply',
+                'description' => 'mautic.campaign.vonage.reply.tooltip',
                 'eventName'   => SmsEvents::ON_CAMPAIGN_REPLY,
                 'formType'    => CampaignReplyType::class,
             ]
@@ -96,7 +96,7 @@ class CampaignReplySubscriber implements EventSubscriberInterface
             return;
         }
 
-        $decisionEvent->setChannel('sms');
+        $decisionEvent->setChannel('vonage');
         $decisionEvent->setAsApplicable();
     }
 
@@ -108,6 +108,6 @@ class CampaignReplySubscriber implements EventSubscriberInterface
      */
     public function onReply(ReplyEvent $event)
     {
-        $this->realTimeExecutioner->execute(self::TYPE, $event, 'sms');
+        $this->realTimeExecutioner->execute(self::TYPE, $event, 'vonage');
     }
 }

@@ -9,12 +9,12 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
 use Mautic\CoreBundle\EventListener\CommonStatsSubscriber;
 use Mautic\CoreBundle\Security\Permissions\CorePermissions;
-use Mautic\SmsBundle\Entity\Stat;
+use MauticPlugin\MauticVonageBundle\Entity\Stat;
 
 class StatsSubscriber extends CommonStatsSubscriber
 {

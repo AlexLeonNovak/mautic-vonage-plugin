@@ -9,10 +9,10 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Event;
+namespace MauticPlugin\MauticVonageBundle\Event;
 
 use Mautic\CoreBundle\Event\CommonEvent;
-use Mautic\SmsBundle\Entity\Sms;
+use MauticPlugin\MauticVonageBundle\Entity\Messages;
 
 /**
  * Class SmsEvent.
@@ -22,18 +22,18 @@ class SmsEvent extends CommonEvent
     /**
      * @param bool $isNew
      */
-    public function __construct(Sms $sms, $isNew = false)
+    public function __construct(Messages $messages, $isNew = false)
     {
-        $this->entity = $sms;
+        $this->entity = $messages;
         $this->isNew  = $isNew;
     }
 
     /**
      * Returns the Sms entity.
      *
-     * @return Sms
+     * @return Messages
      */
-    public function getSms()
+    public function getMessage()
     {
         return $this->entity;
     }
@@ -41,8 +41,8 @@ class SmsEvent extends CommonEvent
     /**
      * Sets the Sms entity.
      */
-    public function setSms(Sms $sms)
+    public function setSms(Messages $messages)
     {
-        $this->entity = $sms;
+        $this->entity = $messages;
     }
 }

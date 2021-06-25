@@ -9,15 +9,16 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\ChannelBundle\ChannelEvents;
 use Mautic\ChannelBundle\Event\ChannelEvent;
 use Mautic\ChannelBundle\Model\MessageModel;
 use Mautic\LeadBundle\Model\LeadModel;
 use Mautic\ReportBundle\Model\ReportModel;
-use Mautic\SmsBundle\Form\Type\SmsListType;
-use Mautic\SmsBundle\Sms\TransportChain;
+use MauticPlugin\MauticVonageBundle\Form\Type\SmsListType;
+//use MauticPlugin\MauticVonageBundle\Model\MessagesModel;
+use MauticPlugin\MauticVonageBundle\Sms\TransportChain;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ChannelSubscriber implements EventSubscriberInterface
@@ -44,26 +45,25 @@ class ChannelSubscriber implements EventSubscriberInterface
 
     public function onAddChannel(ChannelEvent $event)
     {
-        if (count($this->transportChain->getEnabledTransports()) > 0) {
+//        if (count($this->transportChain->getEnabledTransports()) > 0) {
             $event->addChannel(
-                'sms',
+                'vonage',
                 [
                     MessageModel::CHANNEL_FEATURE => [
-                        'campaignAction'             => 'sms.send_text_sms',
+                        'campaignAction'             => 'vonage.send_message',
                         'campaignDecisionsSupported' => [
                             'page.pagehit',
                             'asset.download',
                             'form.submit',
                         ],
                         'lookupFormType' => SmsListType::class,
-                        'repository'     => 'MauticSmsBundle:Sms',
+                        'repository'     => 'MauticVonageBundle:Messages',
                     ],
                     LeadModel::CHANNEL_FEATURE   => [],
                     ReportModel::CHANNEL_FEATURE => [
-                        'table' => 'sms_messages',
+                        'table' => 'vonage_messages',
                     ],
                 ]
             );
-        }
     }
 }

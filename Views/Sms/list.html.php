@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 if ('index' == $tmpl) {
-    $view->extend('MauticSmsBundle:Sms:index.html.php');
+    $view->extend('MauticVonageBundle:Sms:index.html.php');
 }
 
 if (count($items)):
@@ -70,7 +70,7 @@ if (count($items)):
             </thead>
             <tbody>
             <?php
-            /** @var \Mautic\SmsBundle\Entity\Sms $item */
+            /** @var \MauticPlugin\MauticVonageBundle\Entity\Sms $item */
             foreach ($items as $item):
                 $type = $item->getSmsType();
                 ?>
@@ -146,7 +146,7 @@ if (count($items)):
                     </td>
                        <?php
                        echo $view->render(
-                           'MauticSmsBundle:Sms:list_stats.html.php',
+                           'MauticVonageBundle:Sms:list_stats.html.php',
                            [
                                'item' => $item,
                            ]

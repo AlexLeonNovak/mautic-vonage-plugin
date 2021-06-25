@@ -9,14 +9,14 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Broadcast;
+namespace MauticPlugin\MauticVonageBundle\Broadcast;
 
 use Doctrine\ORM\EntityManager;
 use Mautic\CampaignBundle\Entity\ContactLimiterTrait;
 use Mautic\CampaignBundle\Executioner\ContactFinder\Limiter\ContactLimiter;
 use Mautic\ChannelBundle\Entity\MessageQueue;
-use Mautic\SmsBundle\Entity\Sms;
-use Mautic\SmsBundle\Model\SmsModel;
+use MauticPlugin\MauticVonageBundle\Entity\Messages;
+use MauticPlugin\MauticVonageBundle\Model\MessagesModel;
 
 class BroadcastQuery
 {
@@ -28,9 +28,9 @@ class BroadcastQuery
     private $entityManager;
 
     /**
-     * @var SmsModel
+     * @var MessagesModel
      */
-    private $smsModel;
+    private $messagesModel;
 
     /**
      * @var \Doctrine\DBAL\Query\QueryBuilder
@@ -40,10 +40,10 @@ class BroadcastQuery
     /**
      * BroadcastQuery constructor.
      */
-    public function __construct(EntityManager $entityManager, SmsModel $smsModel)
+    public function __construct(EntityManager $entityManager, MessagesModel $messagesModel)
     {
         $this->entityManager = $entityManager;
-        $this->smsModel      = $smsModel;
+        $this->messagesModel      = $messagesModel;
     }
 
     /**
@@ -74,7 +74,7 @@ class BroadcastQuery
      */
     private function getBasicQuery(Sms $sms)
     {
-        $this->query = $this->smsModel->getRepository()->getSegmentsContactsQuery($sms->getId());
+        $this->query = $this->messagesModel->getRepository()->getSegmentsContactsQuery($sms->getId());
         $this->query->andWhere(
             $this->query->expr()->orX(
                 $this->query->expr()->orX(
@@ -99,11 +99,11 @@ class BroadcastQuery
         // Do not include leads that have already received text message
         $statQb = $this->entityManager->getConnection()->createQueryBuilder();
         $statQb->select('null')
-            ->from(MAUTIC_TABLE_PREFIX.'sms_message_stats', 'stat')
+            ->from(MAUTIC_TABLE_PREFIX.'vonage_message_stats', 'stat')
             ->where(
                 $statQb->expr()->andX(
                 $statQb->expr()->eq('stat.lead_id', 'l.id'),
-                $statQb->expr()->eq('stat.sms_id', $smsId)
+                $statQb->expr()->eq('stat.message_id', $smsId)
                     )
             );
 

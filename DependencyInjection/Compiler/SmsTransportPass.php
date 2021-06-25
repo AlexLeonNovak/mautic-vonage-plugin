@@ -8,7 +8,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\DependencyInjection\Compiler;
+namespace MauticPlugin\MauticVonageBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -31,12 +31,12 @@ class SmsTransportPass implements CompilerPassInterface
 
     private function registerTransports()
     {
-        if (!$this->container->has('mautic.sms.transport_chain')) {
+        if (!$this->container->has('mautic.vonage.transport_chain')) {
             return;
         }
 
-        $definition     = $this->container->getDefinition('mautic.sms.transport_chain');
-        $taggedServices = $this->container->findTaggedServiceIds('mautic.sms_transport');
+        $definition     = $this->container->getDefinition('mautic.vonage.transport_chain');
+        $taggedServices = $this->container->findTaggedServiceIds('mautic.vonage_transport');
         foreach ($taggedServices as $id => $tags) {
             $definition->addMethodCall('addTransport', [
                 $id,
@@ -49,12 +49,12 @@ class SmsTransportPass implements CompilerPassInterface
 
     private function registerCallbacks()
     {
-        if (!$this->container->has('mautic.sms.callback_handler_container')) {
+        if (!$this->container->has('mautic.vonage.callback_handler_container')) {
             return;
         }
 
-        $definition     = $this->container->getDefinition('mautic.sms.callback_handler_container');
-        $taggedServices = $this->container->findTaggedServiceIds('mautic.sms_callback_handler');
+        $definition     = $this->container->getDefinition('mautic.vonage.callback_handler_container');
+        $taggedServices = $this->container->findTaggedServiceIds('mautic.vonage_callback_handler');
         foreach ($taggedServices as $id => $tags) {
             $definition->addMethodCall('registerHandler', [
                 new Reference($id),

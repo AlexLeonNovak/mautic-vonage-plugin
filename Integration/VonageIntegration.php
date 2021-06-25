@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Integration;
+namespace MauticPlugin\MauticVonageBundle\Integration;
 
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
@@ -18,9 +18,9 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 /**
- * Class TwilioIntegration.
+ * Class VonageIntegration.
  */
-class TwilioIntegration extends AbstractIntegration
+class VonageIntegration extends AbstractIntegration
 {
     /**
      * @var bool
@@ -34,17 +34,17 @@ class TwilioIntegration extends AbstractIntegration
      */
     public function getName()
     {
-        return 'Twilio';
+        return 'Vonage';
     }
 
     public function getIcon()
     {
-        return 'app/bundles/SmsBundle/Assets/img/Twilio.png';
+        return 'plugins/MauticVonageBundle/Assets/img/Vonage.png';
     }
 
     public function getSecretKeys()
     {
-        return ['password'];
+        return ['secret'];
     }
 
     /**
@@ -55,8 +55,8 @@ class TwilioIntegration extends AbstractIntegration
     public function getRequiredKeyFields()
     {
         return [
-            'username' => 'mautic.sms.config.form.sms.username',
-            'password' => 'mautic.sms.config.form.sms.password',
+            'key' => 'mautic.vonage.config.form.apikey',
+            'secret' => 'mautic.vonage.config.form.apisecret',
         ];
     }
 

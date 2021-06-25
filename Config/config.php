@@ -10,83 +10,87 @@
  */
 
 return [
+	'name'        => 'Vonage connector',
+	'description' => 'Vonage connector',
+	'version'     => '1.0',
+	'author'      => 'Alex Leon',
     'services' => [
         'events' => [
-            'mautic.sms.lead.subscriber' => [
-                'class'     => \Mautic\SmsBundle\EventListener\LeadSubscriber::class,
+            'mautic.vonage.lead.subscriber' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     'translator',
                     'router',
                     'doctrine.orm.entity_manager',
                 ],
             ],
-            'mautic.sms.broadcast.subscriber' => [
-                'class'     => \Mautic\SmsBundle\EventListener\BroadcastSubscriber::class,
+            'mautic.vonage.broadcast.subscriber' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\BroadcastSubscriber::class,
                 'arguments' => [
-                    'mautic.sms.broadcast.executioner',
+                    'mautic.vonage.broadcast.executioner',
                 ],
             ],
-            'mautic.sms.campaignbundle.subscriber.send' => [
-                'class'     => \Mautic\SmsBundle\EventListener\CampaignSendSubscriber::class,
+            'mautic.vonage.campaignbundle.subscriber.send' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\CampaignSendSubscriber::class,
                 'arguments' => [
-                    'mautic.sms.model.sms',
-                    'mautic.sms.transport_chain',
+                    'mautic.vonage.model.messages',
+                    'mautic.vonage.transport_chain',
                 ],
-                'alias' => 'mautic.sms.campaignbundle.subscriber',
+                'alias' => 'mautic.vonage.campaignbundle.subscriber',
             ],
-            'mautic.sms.campaignbundle.subscriber.reply' => [
-                'class'     => \Mautic\SmsBundle\EventListener\CampaignReplySubscriber::class,
+            'mautic.vonage.campaignbundle.subscriber.reply' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\CampaignReplySubscriber::class,
                 'arguments' => [
-                    'mautic.sms.transport_chain',
+                    'mautic.vonage.transport_chain',
                     'mautic.campaign.executioner.realtime',
                 ],
             ],
-            'mautic.sms.smsbundle.subscriber' => [
-                'class'     => \Mautic\SmsBundle\EventListener\SmsSubscriber::class,
+            'mautic.vonage.smsbundle.subscriber' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\SmsSubscriber::class,
                 'arguments' => [
                     'mautic.core.model.auditlog',
                     'mautic.page.model.trackable',
                     'mautic.page.helper.token',
                     'mautic.asset.helper.token',
-                    'mautic.helper.sms',
+                    'mautic.vonage.helper.sms',
                 ],
             ],
-            'mautic.sms.channel.subscriber' => [
-                'class'     => \Mautic\SmsBundle\EventListener\ChannelSubscriber::class,
+            'mautic.vonage.channel.subscriber' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\ChannelSubscriber::class,
                 'arguments' => [
-                    'mautic.sms.transport_chain',
+                    'mautic.vonage.transport_chain',
                 ],
             ],
-            'mautic.sms.message_queue.subscriber' => [
-                'class'     => \Mautic\SmsBundle\EventListener\MessageQueueSubscriber::class,
+            'mautic.vonage.message_queue.subscriber' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\MessageQueueSubscriber::class,
                 'arguments' => [
-                    'mautic.sms.model.sms',
+                    'mautic.vonage.model.messages',
                 ],
             ],
-            'mautic.sms.stats.subscriber' => [
-                'class'     => \Mautic\SmsBundle\EventListener\StatsSubscriber::class,
+            'mautic.vonage.stats.subscriber' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\StatsSubscriber::class,
                 'arguments' => [
                     'mautic.security',
                     'doctrine.orm.entity_manager',
                 ],
             ],
-            'mautic.sms.configbundle.subscriber' => [
-                'class' => Mautic\SmsBundle\EventListener\ConfigSubscriber::class,
+            'mautic.vonage.configbundle.subscriber' => [
+                'class' => MauticPlugin\MauticVonageBundle\EventListener\ConfigSubscriber::class,
             ],
-            'mautic.sms.subscriber.contact_tracker' => [
-                'class'     => \Mautic\SmsBundle\EventListener\TrackingSubscriber::class,
+            'mautic.vonage.subscriber.contact_tracker' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\TrackingSubscriber::class,
                 'arguments' => [
-                    'mautic.sms.repository.stat',
+                    'mautic.vonage.repository.stat',
                 ],
             ],
-            'mautic.sms.subscriber.stop' => [
-                'class'     => \Mautic\SmsBundle\EventListener\StopSubscriber::class,
+            'mautic.vonage.subscriber.stop' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\StopSubscriber::class,
                 'arguments' => [
                     'mautic.lead.model.dnc',
                 ],
             ],
-            'mautic.sms.subscriber.reply' => [
-                'class'     => \Mautic\SmsBundle\EventListener\ReplySubscriber::class,
+            'mautic.vonage.subscriber.reply' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\EventListener\ReplySubscriber::class,
                 'arguments' => [
                     'translator',
                     'mautic.lead.repository.lead_event_log',
@@ -94,38 +98,44 @@ return [
             ],
         ],
         'forms' => [
-            'mautic.form.type.sms' => [
-                'class'     => \Mautic\SmsBundle\Form\Type\SmsType::class,
+            'mautic.vonage.form.type.sms' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Form\Type\SmsType::class,
                 'arguments' => [
                     'doctrine.orm.entity_manager',
                 ],
             ],
-            'mautic.form.type.smsconfig' => [
-                'class' => \Mautic\SmsBundle\Form\Type\ConfigType::class,
+			'mautic.vonage.answerlist.type' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Form\Type\AnswerListType::class,
+                'arguments' => [
+                    'doctrine.orm.entity_manager',
+                ],
             ],
-            'mautic.form.type.smssend_list' => [
-                'class'     => \Mautic\SmsBundle\Form\Type\SmsSendType::class,
+            'mautic.vonage.form.type.smsconfig' => [
+                'class' => \MauticPlugin\MauticVonageBundle\Form\Type\ConfigType::class,
+            ],
+            'mautic.vonage.form.type.smssend_list' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Form\Type\SmsSendType::class,
                 'arguments' => 'router',
             ],
-            'mautic.form.type.sms_list' => [
-                'class' => \Mautic\SmsBundle\Form\Type\SmsListType::class,
+            'mautic.vonage.form.type.sms_list' => [
+                'class' => \MauticPlugin\MauticVonageBundle\Form\Type\SmsListType::class,
             ],
-            'mautic.form.type.sms.config.form' => [
-                'class'     => \Mautic\SmsBundle\Form\Type\ConfigType::class,
-                'arguments' => ['mautic.sms.transport_chain', 'translator'],
+            'mautic.vonage.form.type.sms.config.form' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Form\Type\ConfigType::class,
+                'arguments' => ['mautic.vonage.transport_chain', 'translator'],
             ],
-            'mautic.form.type.sms.campaign_reply_type' => [
-                'class' => \Mautic\SmsBundle\Form\Type\CampaignReplyType::class,
+            'mautic.vonage.form.type.sms.campaign_reply_type' => [
+                'class' => \MauticPlugin\MauticVonageBundle\Form\Type\CampaignReplyType::class,
             ],
         ],
         'helpers' => [
-            'mautic.helper.sms' => [
-                'class'     => \Mautic\SmsBundle\Helper\SmsHelper::class,
+            'mautic.vonage.helper.sms' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Helper\SmsHelper::class,
                 'arguments' => [
                     'doctrine.orm.entity_manager',
                     'mautic.lead.model.lead',
                     'mautic.helper.phone_number',
-                    'mautic.sms.model.sms',
+                    'mautic.vonage.model.messages',
                     'mautic.helper.integration',
                     'mautic.lead.model.dnc',
                 ],
@@ -133,103 +143,113 @@ return [
             ],
         ],
         'other' => [
-            'mautic.sms.transport_chain' => [
-                'class'     => \Mautic\SmsBundle\Sms\TransportChain::class,
+            'mautic.vonage.transport_chain' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Sms\TransportChain::class,
                 'arguments' => [
-                    '%mautic.sms_transport%',
+                    '%mautic.vonage_transport%',
                     'mautic.helper.integration',
                     'monolog.logger.mautic',
                 ],
             ],
-            'mautic.sms.callback_handler_container' => [
-                'class' => \Mautic\SmsBundle\Callback\HandlerContainer::class,
+            'mautic.vonage.callback_handler_container' => [
+                'class' => \MauticPlugin\MauticVonageBundle\Callback\HandlerContainer::class,
             ],
-            'mautic.sms.helper.contact' => [
-                'class'     => \Mautic\SmsBundle\Helper\ContactHelper::class,
+            'mautic.vonage.helper.contact' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Helper\ContactHelper::class,
                 'arguments' => [
                     'mautic.lead.repository.lead',
                     'doctrine.dbal.default_connection',
                     'mautic.helper.phone_number',
                 ],
             ],
-            'mautic.sms.helper.reply' => [
-                'class'     => \Mautic\SmsBundle\Helper\ReplyHelper::class,
-                'arguments' => [
-                    'event_dispatcher',
-                    'monolog.logger.mautic',
-                    'mautic.tracker.contact',
-                ],
-            ],
-            'mautic.sms.twilio.configuration' => [
-                'class'        => \Mautic\SmsBundle\Integration\Twilio\Configuration::class,
+//            'mautic.vonage.helper.reply' => [
+//                'class'     => \MauticPlugin\MauticVonageBundle\Helper\ReplyHelper::class,
+//                'arguments' => [
+//                    'event_dispatcher',
+//                    'monolog.logger.mautic',
+//                    'mautic.tracker.contact',
+//                ],
+//            ],
+			'mautic.vonage.helper.callback' => [
+				'class'     => \MauticPlugin\MauticVonageBundle\Helper\CallbackHelper::class,
+				'arguments' => [
+					'event_dispatcher',
+					'monolog.logger.mautic',
+					'mautic.tracker.contact',
+				],
+			],
+            'mautic.vonage.configuration' => [
+                'class'        => \MauticPlugin\MauticVonageBundle\Integration\Vonage\Configuration::class,
                 'arguments'    => [
                     'mautic.helper.integration',
                 ],
             ],
-            'mautic.sms.twilio.transport' => [
-                'class'        => \Mautic\SmsBundle\Integration\Twilio\TwilioTransport::class,
+            'mautic.vonage.transport' => [
+                'class'        => \MauticPlugin\MauticVonageBundle\Integration\Vonage\VonageTransport::class,
                 'arguments'    => [
-                    'mautic.sms.twilio.configuration',
+                    'mautic.vonage.configuration',
                     'monolog.logger.mautic',
                 ],
-                'tag'          => 'mautic.sms_transport',
+                'tag'          => 'mautic.vonage_transport',
                 'tagArguments' => [
-                    'integrationAlias' => 'Twilio',
+                    'integrationAlias' => 'Vonage',
                 ],
                 'serviceAliases' => [
                     'sms_api',
-                    'mautic.sms.api',
+                    'mautic.vonage.api',
                 ],
             ],
-            'mautic.sms.twilio.callback' => [
-                'class'     => \Mautic\SmsBundle\Integration\Twilio\TwilioCallback::class,
+            'mautic.vonage.callback' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Integration\Vonage\VonageCallback::class,
                 'arguments' => [
-                    'mautic.sms.helper.contact',
-                    'mautic.sms.twilio.configuration',
+                    'mautic.vonage.helper.contact',
+                    'mautic.vonage.configuration',
+					'request_stack',
+					'doctrine.orm.entity_manager',
                 ],
-                'tag'   => 'mautic.sms_callback_handler',
+                'tag'   => 'mautic.vonage_callback_handler',
             ],
 
-            // @deprecated - this should not be used; use `mautic.sms.twilio.transport` instead.
+            // @deprecated - this should not be used; use `mautic.vonage.Vonage.transport` instead.
             // Only kept as BC in case someone is passing the service by name in 3rd party
-            'mautic.sms.transport.twilio' => [
-                'class'        => \Mautic\SmsBundle\Api\TwilioApi::class,
+            'mautic.vonage.transport.vonage' => [
+                'class'        => \MauticPlugin\MauticVonageBundle\Api\VonageApi::class,
                 'arguments'    => [
-                    'mautic.sms.twilio.configuration',
+                    'mautic.vonage.configuration',
                     'monolog.logger.mautic',
                 ],
             ],
-            'mautic.sms.broadcast.executioner' => [
-                'class'        => \Mautic\SmsBundle\Broadcast\BroadcastExecutioner::class,
+            'mautic.vonage.broadcast.executioner' => [
+                'class'        => \MauticPlugin\MauticVonageBundle\Broadcast\BroadcastExecutioner::class,
                 'arguments'    => [
-                    'mautic.sms.model.sms',
-                    'mautic.sms.broadcast.query',
+                    'mautic.vonage.model.messages',
+                    'mautic.vonage.broadcast.query',
                     'translator',
                 ],
             ],
-            'mautic.sms.broadcast.query' => [
-                'class'        => \Mautic\SmsBundle\Broadcast\BroadcastQuery::class,
+            'mautic.vonage.broadcast.query' => [
+                'class'        => \MauticPlugin\MauticVonageBundle\Broadcast\BroadcastQuery::class,
                 'arguments'    => [
                     'doctrine.orm.entity_manager',
-                    'mautic.sms.model.sms',
+                    'mautic.vonage.model.messages',
                 ],
             ],
         ],
         'models' => [
-            'mautic.sms.model.sms' => [
-                'class'     => 'Mautic\SmsBundle\Model\SmsModel',
+            'mautic.vonage.model.messages' => [
+                'class'     => 'MauticPlugin\MauticVonageBundle\Model\MessagesModel',
                 'arguments' => [
                     'mautic.page.model.trackable',
                     'mautic.lead.model.lead',
                     'mautic.channel.model.queue',
-                    'mautic.sms.transport_chain',
+                    'mautic.vonage.transport_chain',
                     'mautic.helper.cache_storage',
                 ],
             ],
         ],
         'integrations' => [
-            'mautic.integration.twilio' => [
-                'class'     => \Mautic\SmsBundle\Integration\TwilioIntegration::class,
+            'mautic.integration.vonage' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Integration\VonageIntegration::class,
                 'arguments' => [
                     'event_dispatcher',
                     'mautic.helper.cache_storage',
@@ -251,20 +271,20 @@ return [
             ],
         ],
         'repositories' => [
-            'mautic.sms.repository.stat' => [
+            'mautic.vonage.repository.stat' => [
                 'class'     => Doctrine\ORM\EntityRepository::class,
                 'factory'   => ['@doctrine.orm.entity_manager', 'getRepository'],
                 'arguments' => [
-                    \Mautic\SmsBundle\Entity\Stat::class,
+                    \MauticPlugin\MauticVonageBundle\Entity\Stat::class,
                 ],
             ],
         ],
         'controllers' => [
-            'mautic.sms.controller.reply' => [
-                'class'     => \Mautic\SmsBundle\Controller\ReplyController::class,
+            'mautic.vonage.controller.reply' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Controller\ReplyController::class,
                 'arguments' => [
-                    'mautic.sms.callback_handler_container',
-                    'mautic.sms.helper.reply',
+                    'mautic.vonage.callback_handler_container',
+                    'mautic.vonage.helper.callback',
                 ],
                 'methodCalls' => [
                     'setContainer' => [
@@ -272,60 +292,81 @@ return [
                     ],
                 ],
             ],
+			'mautic.vonage.controller.callback' => [
+				'class'     => \MauticPlugin\MauticVonageBundle\Controller\CallbackController::class,
+				'arguments' => [
+//					'mautic.vonage.callback_handler_container',
+					'mautic.vonage.helper.callback',
+					'mautic.vonage.callback'
+				],
+//				'methodCalls' => [
+//					'setContainer' => [
+//						'@service_container',
+//					],
+//				],
+			],
         ],
     ],
     'routes' => [
         'main' => [
             'mautic_sms_index' => [
                 'path'       => '/sms/{page}',
-                'controller' => 'MauticSmsBundle:Sms:index',
+                'controller' => 'MauticVonageBundle:Sms:index',
             ],
             'mautic_sms_action' => [
                 'path'       => '/sms/{objectAction}/{objectId}',
-                'controller' => 'MauticSmsBundle:Sms:execute',
+                'controller' => 'MauticVonageBundle:Sms:execute',
             ],
             'mautic_sms_contacts' => [
                 'path'       => '/sms/view/{objectId}/contact/{page}',
-                'controller' => 'MauticSmsBundle:Sms:contacts',
+                'controller' => 'MauticVonageBundle:Sms:contacts',
             ],
         ],
         'public' => [
             'mautic_sms_callback' => [
                 'path'       => '/sms/{transport}/callback',
-                'controller' => 'MauticSmsBundle:Reply:callback',
+                'controller' => 'MauticVonageBundle:Reply:callback',
             ],
-            /* @deprecated as this was Twilio specific */
+            /* @deprecated as this was Vonage specific */
             'mautic_receive_sms' => [
                 'path'       => '/sms/receive',
-                'controller' => 'MauticSmsBundle:Reply:callback',
+                'controller' => 'MauticVonageBundle:Reply:callback',
                 'defaults'   => [
-                    'transport' => 'twilio',
+                    'transport' => 'Vonage',
                 ],
             ],
+			'mautic_vonage_message_status' => [
+				'path'       => '/vonage/cb_message_status',
+				'controller' => 'MauticVonageBundle:Callback:messageStatus',
+			],
+			'mautic_vonage_inbound_message' => [
+				'path'       => '/vonage/cb_inbound_message',
+				'controller' => 'MauticVonageBundle:Callback:inboundMessage',
+			],
         ],
         'api' => [
             'mautic_api_smsesstandard' => [
                 'standard_entity' => true,
                 'name'            => 'smses',
                 'path'            => '/smses',
-                'controller'      => 'MauticSmsBundle:Api\SmsApi',
+                'controller'      => 'MauticVonageBundle:Api\SmsApi',
             ],
             'mautic_api_smses_send' => [
                 'path'       => '/smses/{id}/contact/{contactId}/send',
-                'controller' => 'MauticSmsBundle:Api\SmsApi:send',
+                'controller' => 'MauticVonageBundle:Api\SmsApi:send',
             ],
         ],
     ],
     'menu' => [
         'main' => [
             'items' => [
-                'mautic.sms.smses' => [
+                'mautic.vonage.smses' => [
                     'route'  => 'mautic_sms_index',
                     'access' => ['sms:smses:viewown', 'sms:smses:viewother'],
                     'parent' => 'mautic.core.channels',
                     'checks' => [
                         'integration' => [
-                            'Twilio' => [
+                            'Vonage' => [
                                 'enabled' => true,
                             ],
                         ],
@@ -342,6 +383,6 @@ return [
         'sms_sending_phone_number' => null,
         'sms_frequency_number'     => 0,
         'sms_frequency_time'       => 'DAY',
-        'sms_transport'            => 'mautic.sms.twilio.transport',
+        'vonage_transport'            => 'mautic.vonage.transport',
     ],
 ];

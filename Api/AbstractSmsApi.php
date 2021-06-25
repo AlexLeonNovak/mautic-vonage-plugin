@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Api;
+namespace MauticPlugin\MauticVonageBundle\Api;
 
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PageBundle\Model\TrackableModel;
-use Mautic\SmsBundle\Sms\TransportInterface;
+use MauticPlugin\MauticVonageBundle\Sms\TransportInterface;
 
 /**
  * Class AbstractSmsApi.

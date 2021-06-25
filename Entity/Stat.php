@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Entity;
+namespace MauticPlugin\MauticVonageBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Mautic\ApiBundle\Serializer\Driver\ApiMetadataDriver;
@@ -29,9 +29,14 @@ class Stat
     private $id;
 
     /**
-     * @var Sms
+     * @var Messages
      */
-    private $sms;
+    private $message;
+
+	/**
+	 * @var string
+	 */
+    private $messageUuid;
 
     /**
      * @var \Mautic\LeadBundle\Entity\Lead
@@ -87,19 +92,23 @@ class Stat
     {
         $builder = new ClassMetadataBuilder($metadata);
 
-        $builder->setTable('sms_message_stats')
-            ->setCustomRepositoryClass('Mautic\SmsBundle\Entity\StatRepository')
-            ->addIndex(['sms_id', 'lead_id'], 'stat_sms_search')
+        $builder->setTable('vonage_message_stats')
+            ->setCustomRepositoryClass('MauticPlugin\MauticVonageBundle\Entity\StatRepository')
+            ->addIndex(['message_id', 'lead_id'], 'stat_sms_search')
             ->addIndex(['tracking_hash'], 'stat_sms_hash_search')
             ->addIndex(['source', 'source_id'], 'stat_sms_source_search')
             ->addIndex(['is_failed'], 'stat_sms_failed_search');
 
         $builder->addBigIntIdField();
 
-        $builder->createManyToOne('sms', 'Sms')
+        $builder->createManyToOne('message', 'Messages')
             ->inversedBy('stats')
-            ->addJoinColumn('sms_id', 'id', true, false, 'SET NULL')
+            ->addJoinColumn('message_id', 'id', true, false, 'SET NULL')
             ->build();
+
+		$builder->createField('messageUuid', 'string')
+			->columnName('message_uuid')
+			->build();
 
         $builder->addLead(true, 'SET NULL');
 
@@ -157,7 +166,7 @@ class Stat
                     'sourceId',
                     'trackingHash',
                     'lead',
-                    'sms',
+                    'message',
                     'details',
                 ]
             )
@@ -173,22 +182,42 @@ class Stat
     }
 
     /**
-     * @return Sms
+     * @return Messages
      */
-    public function getSms()
+    public function getMessage()
     {
-        return $this->sms;
+        return $this->message;
     }
 
     /**
      * @return Stat
      */
-    public function setSms(Sms $sms)
+    public function setMessage(Messages $message)
     {
-        $this->sms = $sms;
+        $this->message = $message;
 
         return $this;
     }
+
+	/**
+	 * @return string
+	 */
+	public function getMessageUuid(): string
+	{
+		return $this->messageUuid;
+	}
+
+	/**
+	 * @param string $messageUuid
+	 *
+	 * @return Stat
+	 */
+	public function setMessageUuid(string $messageUuid)
+	{
+		$this->messageUuid = $messageUuid;
+
+		return $this;
+	}
 
     /**
      * @return Lead

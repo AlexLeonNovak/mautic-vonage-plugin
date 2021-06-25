@@ -9,9 +9,10 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Sms;
+namespace MauticPlugin\MauticVonageBundle\Sms;
 
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticVonageBundle\Entity\Stat;
 
 interface TransportInterface
 {
@@ -20,5 +21,5 @@ interface TransportInterface
      *
      * @return bool
      */
-    public function sendSms(Lead $lead, $content);
+    public function sendSms(Lead $lead, $content, Stat $stat);
 }

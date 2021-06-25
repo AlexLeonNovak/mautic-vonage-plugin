@@ -9,10 +9,10 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Integration\Twilio;
+namespace MauticPlugin\MauticVonageBundle\Integration\Vonage;
 
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use Twilio\Exceptions\ConfigurationException;
+use MauticPlugin\MauticVonageBundle\Exception\ConfigurationException;
 
 class Configuration
 {
@@ -29,12 +29,12 @@ class Configuration
     /**
      * @var string
      */
-    private $accountSid;
+    private $key;
 
     /**
      * @var string
      */
-    private $authToken;
+    private $secret;
 
     /**
      * Configuration constructor.
@@ -61,11 +61,11 @@ class Configuration
      *
      * @throws ConfigurationException
      */
-    public function getAccountSid()
+    public function getKey()
     {
         $this->setConfiguration();
 
-        return $this->accountSid;
+        return $this->key;
     }
 
     /**
@@ -73,11 +73,11 @@ class Configuration
      *
      * @throws ConfigurationException
      */
-    public function getAuthToken()
+    public function getSecret()
     {
         $this->setConfiguration();
 
-        return $this->authToken;
+        return $this->secret;
     }
 
     /**
@@ -85,11 +85,11 @@ class Configuration
      */
     private function setConfiguration()
     {
-        if ($this->accountSid) {
+        if ($this->key) {
             return;
         }
 
-        $integration = $this->integrationHelper->getIntegrationObject('Twilio');
+        $integration = $this->integrationHelper->getIntegrationObject('Vonage');
 
         if (!$integration || !$integration->getIntegrationSettings()->getIsPublished()) {
             throw new ConfigurationException();
@@ -101,11 +101,11 @@ class Configuration
         }
 
         $keys = $integration->getDecryptedApiKeys();
-        if (empty($keys['username']) || empty($keys['password'])) {
+        if (empty($keys['key']) || empty($keys['secret'])) {
             throw new ConfigurationException();
         }
 
-        $this->accountSid = $keys['username'];
-        $this->authToken  = $keys['password'];
+        $this->key = $keys['key'];
+        $this->secret  = $keys['secret'];
     }
 }

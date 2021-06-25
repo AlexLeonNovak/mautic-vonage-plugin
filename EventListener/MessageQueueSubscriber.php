@@ -9,22 +9,22 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\ChannelBundle\ChannelEvents;
 use Mautic\ChannelBundle\Entity\MessageQueue;
 use Mautic\ChannelBundle\Event\MessageQueueBatchProcessEvent;
-use Mautic\SmsBundle\Model\SmsModel;
+use MauticPlugin\MauticVonageBundle\Model\MessagesModel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MessageQueueSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var SmsModel
+     * @var MessagesModel
      */
     private $model;
 
-    public function __construct(SmsModel $model)
+    public function __construct(MessagesModel $model)
     {
         $this->model = $model;
     }

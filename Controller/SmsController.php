@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Controller;
+namespace MauticPlugin\MauticVonageBundle\Controller;
 
 use Mautic\CoreBundle\Controller\FormController;
 use Mautic\CoreBundle\Form\Type\DateRangeType;
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\LeadBundle\Controller\EntityContactsTrait;
-use Mautic\SmsBundle\Entity\Sms;
+use MauticPlugin\MauticVonageBundle\Entity\Messages;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,8 +30,8 @@ class SmsController extends FormController
      */
     public function indexAction($page = 1)
     {
-        /** @var \Mautic\SmsBundle\Model\SmsModel $model */
-        $model = $this->getModel('sms');
+        /** @var \MauticPlugin\MauticVonageBundle\Model\MessagesModel $model */
+        $model = $this->getModel('vonage.messages');
 
         //set some permissions
         $permissions = $this->get('mautic.security')->isGranted(
@@ -104,7 +104,7 @@ class SmsController extends FormController
             return $this->postActionRedirect([
                 'returnUrl'       => $returnUrl,
                 'viewParameters'  => ['page' => $lastPage],
-                'contentTemplate' => 'MauticSmsBundle:Sms:index',
+                'contentTemplate' => 'MauticVonageBundle:Sms:index',
                 'passthroughVars' => [
                     'activeLink'    => '#mautic_sms_index',
                     'mauticContent' => 'sms',
@@ -124,9 +124,9 @@ class SmsController extends FormController
                 'permissions' => $permissions,
                 'model'       => $model,
                 'security'    => $this->get('mautic.security'),
-                'configured'  => count($this->get('mautic.sms.transport_chain')->getEnabledTransports()) > 0,
+                'configured'  => count($this->get('mautic.vonage.transport_chain')->getEnabledTransports()) > 0,
             ],
-            'contentTemplate' => 'MauticSmsBundle:Sms:list.html.php',
+            'contentTemplate' => 'MauticVonageBundle:Sms:list.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_sms_index',
                 'mauticContent' => 'sms',
@@ -144,11 +144,11 @@ class SmsController extends FormController
      */
     public function viewAction($objectId)
     {
-        /** @var \Mautic\SmsBundle\Model\SmsModel $model */
-        $model    = $this->getModel('sms');
+        /** @var \MauticPlugin\MauticVonageBundle\Model\MessagesModel $model */
+        $model    = $this->getModel('vonage.messages');
         $security = $this->get('mautic.security');
 
-        /** @var \Mautic\SmsBundle\Entity\Sms $sms */
+        /** @var \MauticPlugin\MauticVonageBundle\Entity\Messages $sms */
         $sms = $model->getEntity($objectId);
         //set the page we came from
         $page = $this->get('session')->get('mautic.sms.page', 1);
@@ -160,7 +160,7 @@ class SmsController extends FormController
             return $this->postActionRedirect([
                 'returnUrl'       => $returnUrl,
                 'viewParameters'  => ['page' => $page],
-                'contentTemplate' => 'MauticSmsBundle:Sms:index',
+                'contentTemplate' => 'MauticVonageBundle:Sms:index',
                 'passthroughVars' => [
                     'activeLink'    => '#mautic_sms_index',
                     'mauticContent' => 'sms',
@@ -194,7 +194,7 @@ class SmsController extends FormController
             new \DateTime($dateRangeForm->get('date_from')->getData()),
             new \DateTime($dateRangeForm->get('date_to')->getData()),
             null,
-            ['sms_id' => $sms->getId()]
+            ['message_id' => $sms->getId()]
         );
 
         // Get click through stats
@@ -221,7 +221,7 @@ class SmsController extends FormController
                 'security'    => $security,
                 'entityViews' => $entityViews,
                 'contacts'    => $this->forward(
-                    'MauticSmsBundle:Sms:contacts',
+                    'MauticVonageBundle:Sms:contacts',
                     [
                         'objectId'   => $sms->getId(),
                         'page'       => $this->get('session')->get('mautic.sms.contact.page', 1),
@@ -230,7 +230,7 @@ class SmsController extends FormController
                 )->getContent(),
                 'dateRangeForm' => $dateRangeForm->createView(),
             ],
-            'contentTemplate' => 'MauticSmsBundle:Sms:details.html.php',
+            'contentTemplate' => 'MauticVonageBundle:Sms:details.html.php',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_sms_index',
                 'mauticContent' => 'sms',
@@ -241,17 +241,17 @@ class SmsController extends FormController
     /**
      * Generates new form and processes post data.
      *
-     * @param Sms $entity
+     * @param Messages $entity
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function newAction($entity = null)
     {
-        /** @var \Mautic\SmsBundle\Model\SmsModel $model */
-        $model = $this->getModel('sms');
+        /** @var \MauticPlugin\MauticVonageBundle\Model\MessagesModel $model */
+        $model = $this->getModel('vonage.messages');
 
-        if (!$entity instanceof Sms) {
-            /** @var \Mautic\SmsBundle\Entity\Sms $entity */
+        if (!$entity instanceof Messages) {
+            /** @var \MauticPlugin\MauticVonageBundle\Entity\Messages $entity */
             $entity = $model->getEntity();
         }
 
@@ -271,12 +271,12 @@ class SmsController extends FormController
             : $this->request->get('updateSelect', false);
 
         if ($updateSelect) {
-            $entity->setSmsType('template');
+            $entity->setSmsType('whatsapp');
         }
 
         //create the form
         $form = $model->createForm($entity, $this->get('form.factory'), $action, ['update_select' => $updateSelect]);
-
+//var_dump($entity);
         ///Check for a submitted form and process it
         if ('POST' == $method) {
             $valid = false;
@@ -306,7 +306,7 @@ class SmsController extends FormController
                             'objectId'     => $entity->getId(),
                         ];
                         $returnUrl = $this->generateUrl('mautic_sms_action', $viewParameters);
-                        $template  = 'MauticSmsBundle:Sms:view';
+                        $template  = 'MauticVonageBundle:Sms:view';
                     } else {
                         //return edit view so that all the session stuff is loaded
                         return $this->editAction($entity->getId(), true);
@@ -315,7 +315,7 @@ class SmsController extends FormController
             } else {
                 $viewParameters = ['page' => $page];
                 $returnUrl      = $this->generateUrl('mautic_sms_index', $viewParameters);
-                $template       = 'MauticSmsBundle:Sms:index';
+                $template       = 'MauticVonageBundle:Sms:index';
                 //clear any modified content
                 $session->remove('mautic.sms.'.$entity->getId().'.content');
             }
@@ -354,10 +354,16 @@ class SmsController extends FormController
         return $this->delegateView(
             [
                 'viewParameters' => [
-                    'form' => $this->setFormTheme($form, 'MauticSmsBundle:Sms:form.html.php', 'MauticSmsBundle:FormTheme\Sms'),
+                    'form' => $this->setFormTheme(
+                    	$form,
+						'MauticVonageBundle:Sms:form.html.php',
+						[
+							'MauticVonageBundle:FormTheme\Sms',
+							'MauticVonageBundle:FormTheme\Custom',
+						]),
                     'sms'  => $entity,
                 ],
-                'contentTemplate' => 'MauticSmsBundle:Sms:form.html.php',
+                'contentTemplate' => 'MauticVonageBundle:Sms:form.html.php',
                 'passthroughVars' => [
                     'activeLink'    => '#mautic_sms_index',
                     'mauticContent' => 'sms',
@@ -382,8 +388,8 @@ class SmsController extends FormController
      */
     public function editAction($objectId, $ignorePost = false, $forceTypeSelection = false)
     {
-        /** @var \Mautic\SmsBundle\Model\SmsModel $model */
-        $model   = $this->getModel('sms');
+        /** @var \MauticPlugin\MauticVonageBundle\Model\MessagesModel $model */
+        $model   = $this->getModel('vonage.messages');
         $method  = $this->request->getMethod();
         $entity  = $model->getEntity($objectId);
         $session = $this->get('session');
@@ -395,7 +401,7 @@ class SmsController extends FormController
         $postActionVars = [
             'returnUrl'       => $returnUrl,
             'viewParameters'  => ['page' => $page],
-            'contentTemplate' => 'MauticSmsBundle:Sms:index',
+            'contentTemplate' => 'MauticVonageBundle:Sms:index',
             'passthroughVars' => [
                 'activeLink'    => 'mautic_sms_index',
                 'mauticContent' => 'sms',
@@ -475,7 +481,7 @@ class SmsController extends FormController
                 'mauticContent' => 'sms',
             ];
 
-            $template = 'MauticSmsBundle:Sms:view';
+            $template = 'MauticVonageBundle:Sms:view';
 
             // Check to see if this is a popup
             if (isset($form['updateSelect'])) {
@@ -517,11 +523,18 @@ class SmsController extends FormController
         return $this->delegateView(
             [
                 'viewParameters' => [
-                    'form'               => $this->setFormTheme($form, 'MauticSmsBundle:Sms:form.html.php', 'MauticSmsBundle:FormTheme\Sms'),
+                    'form'               => $this->setFormTheme(
+                    	$form,
+						'MauticVonageBundle:Sms:form.html.php',
+						[
+							'MauticVonageBundle:FormTheme\Sms',
+							'MauticVonageBundle:FormTheme\Custom',
+						]
+					),
                     'sms'                => $entity,
                     'forceTypeSelection' => $forceTypeSelection,
                 ],
-                'contentTemplate' => 'MauticSmsBundle:Sms:form.html.php',
+                'contentTemplate' => 'MauticVonageBundle:Sms:form.html.php',
                 'passthroughVars' => [
                     'activeLink'    => '#mautic_sms_index',
                     'mauticContent' => 'sms',
@@ -583,7 +596,7 @@ class SmsController extends FormController
         $postActionVars = [
             'returnUrl'       => $returnUrl,
             'viewParameters'  => ['page' => $page],
-            'contentTemplate' => 'MauticSmsBundle:Sms:index',
+            'contentTemplate' => 'MauticVonageBundle:Sms:index',
             'passthroughVars' => [
                 'activeLink'    => 'mautic_sms_index',
                 'mauticContent' => 'sms',
@@ -645,7 +658,7 @@ class SmsController extends FormController
         $postActionVars = [
             'returnUrl'       => $returnUrl,
             'viewParameters'  => ['page' => $page],
-            'contentTemplate' => 'MauticSmsBundle:Sms:index',
+            'contentTemplate' => 'MauticVonageBundle:Sms:index',
             'passthroughVars' => [
                 'activeLink'    => '#mautic_sms_index',
                 'mauticContent' => 'sms',
@@ -711,7 +724,7 @@ class SmsController extends FormController
      */
     public function previewAction($objectId)
     {
-        /** @var \Mautic\SmsBundle\Model\SmsModel $model */
+        /** @var \MauticPlugin\MauticVonageBundle\Model\MessagesModel $model */
         $model    = $this->getModel('sms');
         $sms      = $model->getEntity($objectId);
         $security = $this->get('mautic.security');
@@ -721,7 +734,7 @@ class SmsController extends FormController
                 'viewParameters' => [
                     'sms' => $sms,
                 ],
-                'contentTemplate' => 'MauticSmsBundle:Sms:preview.html.php',
+                'contentTemplate' => 'MauticVonageBundle:Sms:preview.html.php',
             ]);
         }
 
@@ -741,9 +754,9 @@ class SmsController extends FormController
             $page,
             'sms:smses:view',
             'sms',
-            'sms_message_stats',
+            'vonage_message_stats',
             'sms',
-            'sms_id'
+            'message_id'
         );
     }
 }

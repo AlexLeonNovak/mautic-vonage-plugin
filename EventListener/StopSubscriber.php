@@ -9,12 +9,12 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\LeadBundle\Entity\DoNotContact;
 use Mautic\LeadBundle\Model\DoNotContact as DoNotContactModel;
-use Mautic\SmsBundle\Event\ReplyEvent;
-use Mautic\SmsBundle\SmsEvents;
+use MauticPlugin\MauticVonageBundle\Event\ReplyEvent;
+use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class StopSubscriber implements EventSubscriberInterface

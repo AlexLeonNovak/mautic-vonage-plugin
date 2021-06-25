@@ -9,15 +9,15 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Tests\Helper;
+namespace MauticPlugin\MauticVonageBundle\Tests\Helper;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Tracker\ContactTracker;
-use Mautic\SmsBundle\Callback\CallbackInterface;
-use Mautic\SmsBundle\Callback\ResponseInterface;
-use Mautic\SmsBundle\Exception\NumberNotFoundException;
-use Mautic\SmsBundle\Helper\ReplyHelper;
+use MauticPlugin\MauticVonageBundle\Callback\CallbackInterface;
+use MauticPlugin\MauticVonageBundle\Callback\ResponseInterface;
+use MauticPlugin\MauticVonageBundle\Exception\NumberNotFoundException;
+use MauticPlugin\MauticVonageBundle\Helper\ReplyHelper;
 use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;

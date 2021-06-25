@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\AssetBundle\Helper\TokenHelper as AssetTokenHelper;
 use Mautic\CoreBundle\Event\TokenReplacementEvent;
@@ -19,9 +19,9 @@ use Mautic\LeadBundle\Helper\TokenHelper;
 use Mautic\PageBundle\Entity\Trackable;
 use Mautic\PageBundle\Helper\TokenHelper as PageTokenHelper;
 use Mautic\PageBundle\Model\TrackableModel;
-use Mautic\SmsBundle\Event\SmsEvent;
-use Mautic\SmsBundle\Helper\SmsHelper;
-use Mautic\SmsBundle\SmsEvents;
+use MauticPlugin\MauticVonageBundle\Event\SmsEvent;
+use MauticPlugin\MauticVonageBundle\Helper\SmsHelper;
+use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SmsSubscriber implements EventSubscriberInterface

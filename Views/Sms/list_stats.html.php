@@ -8,7 +8,7 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
-/** @var \Mautic\SmsBundle\Entity\Sms $item */
+/** @var \MauticPlugin\MauticVonageBundle\Entity\Sms $item */
 $type = $item->getSmsType();
 ?>
 

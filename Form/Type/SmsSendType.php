@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Form\Type;
+namespace MauticPlugin\MauticVonageBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ButtonType;
@@ -45,6 +45,7 @@ class SmsSendType extends AbstractType
                     'class'    => 'form-control',
                     'tooltip'  => 'mautic.sms.choose.smss',
                     'onchange' => 'Mautic.disabledSmsAction()',
+					'data-message-type' => $options['data']['message_type']
                 ],
                 'multiple'    => false,
                 'required'    => true,
@@ -81,7 +82,7 @@ class SmsSendType extends AbstractType
                 ]
             );
 
-            $sms = $options['data']['sms'];
+            $sms = $options['data'];
 
             // create button edit sms
             $windowUrlEdit = $this->router->generate(

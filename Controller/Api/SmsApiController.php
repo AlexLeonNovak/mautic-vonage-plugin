@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Controller\Api;
+namespace MauticPlugin\MauticVonageBundle\Controller\Api;
 
 use Mautic\ApiBundle\Controller\CommonApiController;
 use Mautic\LeadBundle\Controller\LeadAccessTrait;
-use Mautic\SmsBundle\Model\SmsModel;
+use MauticPlugin\MauticVonageBundle\Model\MessagesModel;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
@@ -26,7 +26,7 @@ class SmsApiController extends CommonApiController
     use LeadAccessTrait;
 
     /**
-     * @var SmsModel
+     * @var MessagesModel
      */
     protected $model;
 
@@ -36,7 +36,7 @@ class SmsApiController extends CommonApiController
     public function initialize(FilterControllerEvent $event)
     {
         $this->model           = $this->getModel('sms');
-        $this->entityClass     = 'Mautic\SmsBundle\Entity\Sms';
+        $this->entityClass     = 'MauticPlugin\MauticVonageBundle\Entity\Sms';
         $this->entityNameOne   = 'sms';
         $this->entityNameMulti = 'smses';
 
@@ -51,7 +51,7 @@ class SmsApiController extends CommonApiController
      */
     public function sendAction($id, $contactId)
     {
-        if (!$this->get('mautic.sms.transport_chain')->getEnabledTransports()) {
+        if (!$this->get('mautic.vonage.transport_chain')->getEnabledTransports()) {
             return new JsonResponse(json_encode(['error' => ['message' => 'SMS transport is disabled.', 'code' => Response::HTTP_EXPECTATION_FAILED]]));
         }
 

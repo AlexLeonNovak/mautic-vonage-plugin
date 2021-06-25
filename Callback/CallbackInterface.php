@@ -9,22 +9,16 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Callback;
+namespace MauticPlugin\MauticVonageBundle\Callback;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Mautic\SmsBundle\Exception\NumberNotFoundException;
+use MauticPlugin\MauticVonageBundle\Exception\NumberNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 interface CallbackInterface
 {
-    /**
-     * Returns a "transport" string to match the URL path /sms/{transport}/callback.
-     *
-     * @return string
-     */
-    public function getTransportName();
 
     /**
      * Return all contacts that match whatever identifiers the service provides (likely number).

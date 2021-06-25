@@ -9,13 +9,14 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Helper;
+namespace MauticPlugin\MauticVonageBundle\Helper;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Mautic\CoreBundle\Helper\PhoneNumberHelper;
+use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadRepository;
-use Mautic\SmsBundle\Exception\NumberNotFoundException;
+use MauticPlugin\MauticVonageBundle\Exception\NumberNotFoundException;
 
 class ContactHelper
 {
@@ -56,6 +57,7 @@ class ContactHelper
      */
     public function findContactsByNumber($number)
     {
+    	$number = '+' . str_replace('+', '', $number);
         // Who knows what the number was originally formatted as so let's try a few
         $searchForNumbers = $this->phoneNumberHelper->getFormattedNumberList($number);
 

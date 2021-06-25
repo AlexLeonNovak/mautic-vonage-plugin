@@ -9,20 +9,23 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Integration\Twilio;
+namespace MauticPlugin\MauticVonageBundle\Integration\Vonage;
 
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 use Mautic\LeadBundle\Entity\Lead;
-use Mautic\SmsBundle\Sms\TransportInterface;
+use MauticPlugin\MauticVonageBundle\Entity\Messages;
+use MauticPlugin\MauticVonageBundle\Entity\Stat;
+use MauticPlugin\MauticVonageBundle\Exception\ConfigurationException;
+use MauticPlugin\MauticVonageBundle\Exception\VonageException;
+use MauticPlugin\MauticVonageBundle\Sms\TransportInterface;
 use Psr\Log\LoggerInterface;
-use Twilio\Exceptions\ConfigurationException;
-use Twilio\Exceptions\TwilioException;
-use Twilio\Rest\Client;
+use GuzzleHttp\Client;
 
-class TwilioTransport implements TransportInterface
+class VonageTransport implements TransportInterface
 {
+	const BASE_URL = 'https://messages-sandbox.nexmo.com/v0.1/'; //'https://api.nexmo.com/v0.1/'
     /**
      * @var Configuration
      */
@@ -44,7 +47,7 @@ class TwilioTransport implements TransportInterface
     private $sendingPhoneNumber;
 
     /**
-     * TwilioTransport constructor.
+     * VonageTransport constructor.
      */
     public function __construct(Configuration $configuration, LoggerInterface $logger)
     {
@@ -57,26 +60,39 @@ class TwilioTransport implements TransportInterface
      *
      * @return bool|string
      */
-    public function sendSms(Lead $lead, $content)
+    public function sendSms(Lead $lead, $content, Stat $stat)
     {
         $number = $lead->getLeadPhoneNumber();
 
         if (null === $number) {
             return false;
         }
+		$messageType = $stat->getMessage()->getSmsType();
 
         try {
             $this->configureClient();
 
-            $this->client->messages->create(
-                $this->sanitizeNumber($number),
-                [
-                    'from' => $this->sendingPhoneNumber,
-                    'body' => $content,
-                ]
-            );
+			$bodyMessage = [
+				'from' => [
+					'type' => $messageType,
+					'number' => $this->sendingPhoneNumber
+				],
+				'to' => [
+					'type' => $messageType,
+					'number' => $this->sanitizeNumber($number)
+				],
+				'message' => [
+					'content' => [
+						'type' => 'text',
+						'text' => $content
+					]
+				]
+			];
 
-            return true;
+			$requestMessage = $this->requestMessage($bodyMessage);
+
+			return json_decode($requestMessage, true);
+
         } catch (NumberParseException $exception) {
             $this->logger->addWarning(
                 $exception->getMessage(),
@@ -85,14 +101,14 @@ class TwilioTransport implements TransportInterface
 
             return $exception->getMessage();
         } catch (ConfigurationException $exception) {
-            $message = ($exception->getMessage()) ? $exception->getMessage() : 'mautic.sms.transport.twilio.not_configured';
+            $message = ($exception->getMessage()) ? $exception->getMessage() : 'mautic.sms.transport.Vonage.not_configured';
             $this->logger->addWarning(
                 $message,
                 ['exception' => $exception]
             );
 
             return $message;
-        } catch (TwilioException $exception) {
+        } catch (VonageException $exception) {
             $this->logger->addWarning(
                 $exception->getMessage(),
                 ['exception' => $exception]
@@ -113,8 +129,9 @@ class TwilioTransport implements TransportInterface
     {
         $util   = PhoneNumberUtil::getInstance();
         $parsed = $util->parse($number, 'US');
+		$formatted = $util->format($parsed, PhoneNumberFormat::E164);
 
-        return $util->format($parsed, PhoneNumberFormat::E164);
+        return str_replace('+', '', $formatted);
     }
 
     /**
@@ -128,9 +145,25 @@ class TwilioTransport implements TransportInterface
         }
 
         $this->sendingPhoneNumber = $this->configuration->getSendingNumber();
-        $this->client             = new Client(
-            $this->configuration->getAccountSid(),
-            $this->configuration->getAuthToken()
-        );
+        $this->client = new Client([
+        	'base_uri' => self::BASE_URL,
+			'timeout' => 2.0,
+			'headers' => [
+				'Content-Type' => 'application/json',
+				'Accept' => 'application/json'
+			],
+			'auth' => [
+				$this->configuration->getKey(),
+				$this->configuration->getSecret()
+			],
+		]);
     }
+
+    private function requestMessage(array $body)
+	{
+		$response = $this->client->request('POST', 'messages', [
+			'body' => json_encode($body)
+		]);
+		return $response->getBody();
+	}
 }

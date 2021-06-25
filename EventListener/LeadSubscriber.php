@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
 use Mautic\LeadBundle\Event\LeadTimelineEvent;
@@ -74,8 +74,8 @@ class LeadSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var \Mautic\SmsBundle\Entity\StatRepository $statRepository */
-        $statRepository        = $this->em->getRepository('MauticSmsBundle:Stat');
+        /** @var \MauticPlugin\MauticVonageBundle\Entity\StatRepository $statRepository */
+        $statRepository        = $this->em->getRepository('MauticVonageBundle:Stat');
         $queryOptions          = $event->getQueryOptions();
         $queryOptions['state'] = $state;
         $stats                 = $statRepository->getLeadStats($event->getLeadId(), $queryOptions);
@@ -94,7 +94,7 @@ class LeadSubscriber implements EventSubscriberInterface
 
                 $eventName = [
                         'label'      => $label,
-                        'href'       => $this->router->generate('mautic_sms_action', ['objectAction'=>'view', 'objectId' => $stat['sms_id']]),
+                        'href'       => $this->router->generate('mautic_sms_action', ['objectAction'=>'view', 'objectId' => $stat['message_id']]),
                     ];
                 if ('failed' == $state or 'sent' == $state) { //this is to get the correct column for date dateSent
                     $dateSent = 'sent';
@@ -113,7 +113,7 @@ class LeadSubscriber implements EventSubscriberInterface
                             'stat' => $stat,
                             'type' => $state,
                         ],
-                        'contentTemplate' => 'MauticSmsBundle:SubscribedEvents\Timeline:index.html.php',
+                        'contentTemplate' => 'MauticVonageBundle:SubscribedEvents\Timeline:index.html.php',
                         'icon'            => ('read' == $state) ? 'fa-message-o' : 'fa-commenting',
                         'contactId'       => $contactId,
                     ]

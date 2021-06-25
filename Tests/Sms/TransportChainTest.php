@@ -8,14 +8,14 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Tests\Sms;
+namespace MauticPlugin\MauticVonageBundle\Tests\Sms;
 
 use Exception;
 use Mautic\CoreBundle\Test\MauticMysqlTestCase;
 use Mautic\LeadBundle\Entity\Lead;
-use Mautic\SmsBundle\Integration\Twilio\TwilioTransport;
-use Mautic\SmsBundle\Sms\TransportChain;
-use Mautic\SmsBundle\Sms\TransportInterface;
+use MauticPlugin\MauticVonageBundle\Integration\Vonage\VonageTransport;
+use MauticPlugin\MauticVonageBundle\Sms\TransportChain;
+use MauticPlugin\MauticVonageBundle\Sms\TransportInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 
@@ -29,7 +29,7 @@ class TransportChainTest extends MauticMysqlTestCase
     /**
      * @var TransportInterface|MockObject
      */
-    private $twilioTransport;
+    private $VonageTransport;
 
     /**
      * Call protected/private method of a class.
@@ -56,13 +56,13 @@ class TransportChainTest extends MauticMysqlTestCase
         parent::setUp();
 
         $this->transportChain = new TransportChain(
-            'mautic.test.twilio.mock',
+            'mautic.test.Vonage.mock',
             $this->container->get('mautic.helper.integration')
         );
 
-        $this->twilioTransport = $this->createMock(TwilioTransport::class);
+        $this->VonageTransport = $this->createMock(VonageTransport::class);
 
-        $this->twilioTransport
+        $this->VonageTransport
             ->method('sendSMS')
             ->will($this->returnValue('lol'));
     }
@@ -71,7 +71,7 @@ class TransportChainTest extends MauticMysqlTestCase
     {
         $count = count($this->transportChain->getTransports());
 
-        $this->transportChain->addTransport('mautic.transport.test', $this->container->get('mautic.sms.twilio.transport'), 'mautic.transport.test', 'Twilio');
+        $this->transportChain->addTransport('mautic.transport.test', $this->container->get('mautic.sms.Vonage.transport'), 'mautic.transport.test', 'Vonage');
 
         $this->assertCount($count + 1, $this->transportChain->getTransports());
     }
@@ -80,7 +80,7 @@ class TransportChainTest extends MauticMysqlTestCase
     {
         $this->testAddTransport();
 
-        $this->transportChain->addTransport('mautic.test.twilio.mock', $this->twilioTransport, 'mautic.test.twilio.mock', 'Twilio');
+        $this->transportChain->addTransport('mautic.test.Vonage.mock', $this->VonageTransport, 'mautic.test.Vonage.mock', 'Vonage');
 
         $lead = new Lead();
         $lead->setMobile('+123456789');

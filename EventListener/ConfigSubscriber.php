@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\ConfigBundle\ConfigEvents;
 use Mautic\ConfigBundle\Event\ConfigBuilderEvent;
-use Mautic\SmsBundle\Form\Type\ConfigType;
+use MauticPlugin\MauticVonageBundle\Form\Type\ConfigType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ConfigSubscriber implements EventSubscriberInterface
@@ -34,8 +34,8 @@ class ConfigSubscriber implements EventSubscriberInterface
             'bundle'     => 'SmsBundle',
             'formAlias'  => 'smsconfig',
             'formType'   => ConfigType::class,
-            'formTheme'  => 'MauticSmsBundle:FormTheme\Config',
-            'parameters' => $event->getParametersFromConfig('MauticSmsBundle'),
+            'formTheme'  => 'MauticVonageBundle:FormTheme\Config',
+            'parameters' => $event->getParametersFromConfig('MauticVonageBundle'),
         ]);
     }
 }

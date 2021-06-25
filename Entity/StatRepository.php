@@ -9,10 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Entity;
+namespace MauticPlugin\MauticVonageBundle\Entity;
 
 use Mautic\CoreBundle\Entity\CommonRepository;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
+use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\TimelineTrait;
 
 /**
@@ -56,8 +57,8 @@ class StatRepository extends CommonRepository
     {
         $q = $this->_em->getConnection()->createQueryBuilder();
         $q->select('s.lead_id')
-            ->from(MAUTIC_TABLE_PREFIX.'sms_messages_stats', 's')
-            ->where('s.sms_id = :sms')
+            ->from(MAUTIC_TABLE_PREFIX.'vonage_messages_stats', 's')
+            ->where('s.message_id = :sms')
             ->setParameter('sms', $smsId);
 
         if ($listId) {
@@ -89,14 +90,14 @@ class StatRepository extends CommonRepository
         $q = $this->_em->getConnection()->createQueryBuilder();
 
         $q->select('count(s.id) as sent_count')
-            ->from(MAUTIC_TABLE_PREFIX.'sms_message_stats', 's');
+            ->from(MAUTIC_TABLE_PREFIX.'vonage_message_stats', 's');
 
         if ($smsIds) {
             if (!is_array($smsIds)) {
                 $smsIds = [(int) $smsIds];
             }
             $q->where(
-                $q->expr()->in('s.sms_id', $smsIds)
+                $q->expr()->in('s.message_id', $smsIds)
             );
         }
 
@@ -125,8 +126,8 @@ class StatRepository extends CommonRepository
     public function getLeadStats($leadId, array $options = [])
     {
         $query = $this->getEntityManager()->getConnection()->createQueryBuilder();
-        $query->from(MAUTIC_TABLE_PREFIX.'sms_message_stats', 's')
-            ->leftJoin('s', MAUTIC_TABLE_PREFIX.'sms_messages', 'e', 's.sms_id = e.id');
+        $query->from(MAUTIC_TABLE_PREFIX.'vonage_message_stats', 's')
+            ->leftJoin('s', MAUTIC_TABLE_PREFIX.'vonage_messages', 'e', 's.message_id = e.id');
 
         if ($leadId) {
             $query->andWhere(
@@ -136,11 +137,11 @@ class StatRepository extends CommonRepository
 
         if (!empty($options['basic_select'])) {
             $query->select(
-                's.sms_id, s.id, s.date_sent as dateSent, e.name, e.name as sms_name,  s.is_failed as isFailed'
+                's.message_id, s.id, s.date_sent as dateSent, e.name, e.name as sms_name,  s.is_failed as isFailed'
             );
         } else {
             $query->select(
-                's.sms_id, s.id, s.date_sent as dateSent, e.name, e.name as sms_name, s.is_failed as isFailed, s.list_id, l.name as list_name, s.tracking_hash as idHash, s.lead_id, s.details'
+                's.message_id, s.id, s.date_sent as dateSent, e.name, e.name as sms_name, s.is_failed as isFailed, s.list_id, l.name as list_name, s.tracking_hash as idHash, s.lead_id, s.details'
             )
                 ->leftJoin('s', MAUTIC_TABLE_PREFIX.'lead_lists', 'l', 's.list_id = l.id');
         }
@@ -187,11 +188,16 @@ class StatRepository extends CommonRepository
     public function updateLead($fromLeadId, $toLeadId)
     {
         $q = $this->_em->getConnection()->createQueryBuilder();
-        $q->update(MAUTIC_TABLE_PREFIX.'sms_message_stats')
-            ->set('sms_id', (int) $toLeadId)
-            ->where('sms_id = '.(int) $fromLeadId)
+        $q->update(MAUTIC_TABLE_PREFIX.'vonage_message_stats')
+            ->set('message_id', (int) $toLeadId)
+            ->where('message_id = '.(int) $fromLeadId)
             ->execute();
     }
+
+    public function updateField(Lead $lead)
+	{
+
+	}
 
     /**
      * Delete a stat.
@@ -200,7 +206,7 @@ class StatRepository extends CommonRepository
      */
     public function deleteStat($id)
     {
-        $this->_em->getConnection()->delete(MAUTIC_TABLE_PREFIX.'sms_message_stats', ['id' => (int) $id]);
+        $this->_em->getConnection()->delete(MAUTIC_TABLE_PREFIX.'vonage_message_stats', ['id' => (int) $id]);
     }
 
     /**

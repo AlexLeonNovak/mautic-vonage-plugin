@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Model;
+namespace MauticPlugin\MauticVonageBundle\Model;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 use Mautic\ChannelBundle\Entity\MessageQueue;
@@ -24,17 +24,17 @@ use Mautic\LeadBundle\Entity\DoNotContactRepository;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\LeadModel;
 use Mautic\PageBundle\Model\TrackableModel;
-use Mautic\SmsBundle\Entity\Sms;
-use Mautic\SmsBundle\Entity\Stat;
-use Mautic\SmsBundle\Event\SmsEvent;
-use Mautic\SmsBundle\Event\SmsSendEvent;
-use Mautic\SmsBundle\Form\Type\SmsType;
-use Mautic\SmsBundle\Sms\TransportChain;
-use Mautic\SmsBundle\SmsEvents;
+use MauticPlugin\MauticVonageBundle\Entity\Messages;
+use MauticPlugin\MauticVonageBundle\Entity\Stat;
+use MauticPlugin\MauticVonageBundle\Event\SmsEvent;
+use MauticPlugin\MauticVonageBundle\Event\SmsSendEvent;
+use MauticPlugin\MauticVonageBundle\Form\Type\SmsType;
+use MauticPlugin\MauticVonageBundle\Sms\TransportChain;
+use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
-class SmsModel extends FormModel implements AjaxLookupModelInterface
+class MessagesModel extends FormModel implements AjaxLookupModelInterface
 {
     /**
      * @var TrackableModel
@@ -61,7 +61,13 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
      */
     private $cacheStorageHelper;
 
-    public function __construct(TrackableModel $pageTrackableModel, LeadModel $leadModel, MessageQueueModel $messageQueueModel, TransportChain $transport, CacheStorageHelper $cacheStorageHelper)
+    public function __construct(
+    	TrackableModel $pageTrackableModel,
+		LeadModel $leadModel,
+		MessageQueueModel $messageQueueModel,
+		TransportChain $transport,
+		CacheStorageHelper $cacheStorageHelper
+	)
     {
         $this->pageTrackableModel = $pageTrackableModel;
         $this->leadModel          = $leadModel;
@@ -73,19 +79,19 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
     /**
      * {@inheritdoc}
      *
-     * @return \Mautic\SmsBundle\Entity\SmsRepository
+     * @return \MauticPlugin\MauticVonageBundle\Entity\MessagesRepository
      */
     public function getRepository()
     {
-        return $this->em->getRepository('MauticSmsBundle:Sms');
+        return $this->em->getRepository('MauticVonageBundle:Messages');
     }
 
     /**
-     * @return \Mautic\SmsBundle\Entity\StatRepository
+     * @return \MauticPlugin\MauticVonageBundle\Entity\StatRepository
      */
     public function getStatRepository()
     {
-        return $this->em->getRepository('MauticSmsBundle:Stat');
+        return $this->em->getRepository('MauticVonageBundle:Stat');
     }
 
     /**
@@ -115,7 +121,7 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
             //set some defaults
             $this->setTimestamps($entity, $isNew, $unlock);
 
-            if ($dispatchEvent = $entity instanceof Sms) {
+            if ($dispatchEvent = $entity instanceof Messages) {
                 $event = $this->dispatchEvent('pre_save', $entity, $isNew);
             }
 
@@ -132,6 +138,17 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
         $this->em->flush();
     }
 
+	public function saveEntity($entity, $unlock = true)
+	{
+		parent::saveEntity($entity, $unlock);
+		/** @var $entity \MauticPlugin\MauticVonageBundle\Entity\Messages */
+		foreach ($entity->getAnswers() as $answer) {
+			/** @var $answer \MauticPlugin\MauticVonageBundle\Entity\MessageAnswers */
+			$answer->setMessage($entity);
+			$this->em->flush($answer);
+		}
+	}
+
     /**
      * {@inheritdoc}
      *
@@ -147,8 +164,8 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
      */
     public function createForm($entity, $formFactory, $action = null, $options = [])
     {
-        if (!$entity instanceof Sms) {
-            throw new MethodNotAllowedHttpException(['Sms']);
+        if (!$entity instanceof Messages) {
+            throw new MethodNotAllowedHttpException(['Messages']);
         }
         if (!empty($action)) {
             $options['action'] = $action;
@@ -162,12 +179,12 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
      *
      * @param $id
      *
-     * @return Sms|null
+     * @return Messages|null
      */
     public function getEntity($id = null)
     {
         if (null === $id) {
-            $entity = new Sms();
+            $entity = new Messages();
         } else {
             $entity = parent::getEntity($id);
         }
@@ -203,7 +220,7 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
      *
      * @return array
      */
-    public function sendSms(Sms $sms, $sendTo, $options = [])
+    public function sendSms(Messages $sms, $sendTo, $options = [])
     {
         $channel = (isset($options['channel'])) ? $options['channel'] : null;
         $listId  = (isset($options['listId'])) ? $options['listId'] : null;
@@ -267,7 +284,7 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
                 3,
                 MessageQueue::PRIORITY_NORMAL,
                 $messageQueue,
-                'sms_message_stats'
+                'vonage_message_stats'
             );
 
             if ($queued) {
@@ -312,18 +329,18 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
                             $lead,
                             [
                                 'channel' => [
-                                    'sms',          // Keep BC pre 2.14.1
+                                    'message',          // Keep BC pre 2.14.1
                                     $sms->getId(),  // Keep BC pre 2.14.1
-                                    'sms' => $sms->getId(),
+                                    'message' => $sms->getId(),
                                 ],
-                                'stat'    => $stat->getTrackingHash(),
+                                'message_stat'    => $stat->getTrackingHash(),
                             ]
                         )
                     );
 
                     $sendResult = [
                         'sent'    => false,
-                        'type'    => 'mautic.sms.sms',
+                        'type'    => 'mautic.vonage.' . $sms->getSmsType(),
                         'status'  => 'mautic.sms.timeline.status.delivered',
                         'id'      => $sms->getId(),
                         'name'    => $sms->getName(),
@@ -331,16 +348,17 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
                     ];
 
                     $metadata = $this->transport->sendSms($lead, $tokenEvent->getContent(), $stat);
-                    if (true !== $metadata) {
+                    if (isset($metadata['message_uuid'])) {
+                    	$stat->setMessageUuid($metadata['message_uuid']);
+						$sendResult['sent'] = true;
+						++$sentCount;
+					} else {
                         $sendResult['status'] = $metadata;
                         $stat->setIsFailed(true);
                         if (is_string($metadata)) {
                             $stat->addDetail('failed', $metadata);
                         }
                         ++$failedCount;
-                    } else {
-                        $sendResult['sent'] = true;
-                        ++$sentCount;
                     }
 
                     $stats[]            = $stat;
@@ -377,12 +395,12 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
      *
      * @throws \Exception
      */
-    public function createStatEntry(Sms $sms, Lead $lead, $source = null, $persist = true, $listId = null)
+    public function createStatEntry(Messages $sms, Lead $lead, $source = null, $persist = true, $listId = null)
     {
         $stat = new Stat();
         $stat->setDateSent(new \DateTime());
         $stat->setLead($lead);
-        $stat->setSms($sms);
+        $stat->setMessage($sms);
         if (null !== $listId) {
             $stat->setList($this->leadModel->getLeadListRepository()->getEntity($listId));
         }
@@ -412,8 +430,8 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
      */
     protected function dispatchEvent($action, &$entity, $isNew = false, Event $event = null)
     {
-        if (!$entity instanceof Sms) {
-            throw new MethodNotAllowedHttpException(['Sms']);
+        if (!$entity instanceof Messages) {
+            throw new MethodNotAllowedHttpException(['Messages']);
         }
 
         switch ($action) {
@@ -433,18 +451,18 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
                 return;
         }
 
-        if ($this->dispatcher->hasListeners($name)) {
-            if (empty($event)) {
-                $event = new SmsEvent($entity, $isNew);
-                $event->setEntityManager($this->em);
-            }
-
-            $this->dispatcher->dispatch($name, $event);
-
-            return $event;
-        } else {
+//        if ($this->dispatcher->hasListeners($name)) {
+//            if (empty($event)) {
+//                $event = new SmsEvent($entity, $isNew);
+//                $event->setEntityManager($this->em);
+//            }
+//
+//            $this->dispatcher->dispatch($name, $event);
+//
+//            return $event;
+//        } else {
             return;
-        }
+//        }
     }
 
     /**
@@ -452,7 +470,7 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
      */
     public function limitQueryToCreator(QueryBuilder &$q)
     {
-        $q->join('t', MAUTIC_TABLE_PREFIX.'sms_messages', 's', 's.id = t.sms_id')
+        $q->join('t', MAUTIC_TABLE_PREFIX.'vonage_messages', 's', 's.id = t.message_id')
             ->andWhere('s.created_by = :userId')
             ->setParameter('userId', $this->userHelper->getUser()->getId());
     }
@@ -481,7 +499,7 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
 
         if (!$flag || 'total_and_unique' === $flag) {
             $filter['is_failed'] = 0;
-            $q                   = $query->prepareTimeDataQuery('sms_message_stats', 'date_sent', $filter);
+            $q                   = $query->prepareTimeDataQuery('vonage_message_stats', 'date_sent', $filter);
 
             if (!$canViewOthers) {
                 $this->limitQueryToCreator($q);
@@ -493,7 +511,7 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
 
         if (!$flag || 'failed' === $flag) {
             $filter['is_failed'] = 1;
-            $q                   = $query->prepareTimeDataQuery('sms_message_stats', 'date_sent', $filter);
+            $q                   = $query->prepareTimeDataQuery('vonage_message_stats', 'date_sent', $filter);
             if (!$canViewOthers) {
                 $this->limitQueryToCreator($q);
             }
@@ -559,14 +577,14 @@ class SmsModel extends FormModel implements AjaxLookupModelInterface
     {
         $results = [];
         switch ($type) {
-            case 'sms':
+//            case 'sms':
             case SmsType::class:
                 $entities = $this->getRepository()->getSmsList(
                     $filter,
                     $limit,
                     $start,
                     $this->security->isGranted($this->getPermissionBase().':viewother'),
-                    isset($options['sms_type']) ? $options['sms_type'] : null
+					$options['message_type'] ?? null
                 );
 
                 foreach ($entities as $entity) {

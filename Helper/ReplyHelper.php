@@ -9,15 +9,15 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Helper;
+namespace MauticPlugin\MauticVonageBundle\Helper;
 
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Tracker\ContactTracker;
-use Mautic\SmsBundle\Callback\CallbackInterface;
-use Mautic\SmsBundle\Callback\ResponseInterface;
-use Mautic\SmsBundle\Event\ReplyEvent;
-use Mautic\SmsBundle\Exception\NumberNotFoundException;
-use Mautic\SmsBundle\SmsEvents;
+use MauticPlugin\MauticVonageBundle\Callback\CallbackInterface;
+use MauticPlugin\MauticVonageBundle\Callback\ResponseInterface;
+use MauticPlugin\MauticVonageBundle\Event\ReplyEvent;
+use MauticPlugin\MauticVonageBundle\Exception\NumberNotFoundException;
+use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;

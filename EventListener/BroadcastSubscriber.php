@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\ChannelBundle\ChannelEvents;
 use Mautic\ChannelBundle\Event\ChannelBroadcastEvent;
-use Mautic\SmsBundle\Broadcast\BroadcastExecutioner;
+use MauticPlugin\MauticVonageBundle\Broadcast\BroadcastExecutioner;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -46,7 +46,7 @@ class BroadcastSubscriber implements EventSubscriberInterface
 
     public function onBroadcast(ChannelBroadcastEvent $event)
     {
-        if (!$event->checkContext('sms')) {
+        if (!$event->checkContext('vonage')) {
             return;
         }
 

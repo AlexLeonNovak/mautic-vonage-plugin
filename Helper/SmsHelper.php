@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Helper;
+namespace MauticPlugin\MauticVonageBundle\Helper;
 
 use Doctrine\ORM\EntityManager;
 use libphonenumber\PhoneNumberFormat;
@@ -19,7 +19,7 @@ use Mautic\LeadBundle\Entity\LeadRepository;
 use Mautic\LeadBundle\Model\DoNotContact;
 use Mautic\LeadBundle\Model\LeadModel;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
-use Mautic\SmsBundle\Model\SmsModel;
+use MauticPlugin\MauticVonageBundle\Model\MessagesModel;
 
 class SmsHelper
 {
@@ -39,9 +39,9 @@ class SmsHelper
     protected $phoneNumberHelper;
 
     /**
-     * @var SmsModel
+     * @var MessagesModel
      */
-    protected $smsModel;
+    protected $messagesModel;
 
     /**
      * @var IntegrationHelper
@@ -57,14 +57,14 @@ class SmsHelper
         EntityManager $em,
         LeadModel $leadModel,
         PhoneNumberHelper $phoneNumberHelper,
-        SmsModel $smsModel,
+        MessagesModel $messagesModel,
         IntegrationHelper $integrationHelper,
         DoNotContact $doNotContact
     ) {
         $this->em                   = $em;
         $this->leadModel            = $leadModel;
         $this->phoneNumberHelper    = $phoneNumberHelper;
-        $this->smsModel             = $smsModel;
+        $this->messagesModel             = $messagesModel;
         $this->integrationHelper    = $integrationHelper;
         $this->doNotContact         = $doNotContact;
     }
@@ -113,7 +113,7 @@ class SmsHelper
      */
     public function getDisableTrackableUrls()
     {
-        $integration = $this->integrationHelper->getIntegrationObject('Twilio');
+        $integration = $this->integrationHelper->getIntegrationObject('Vonage');
         $settings    = $integration->getIntegrationSettings()->getFeatureSettings();
 
         return !empty($settings['disable_trackable_urls']) ? true : false;

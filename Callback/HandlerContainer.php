@@ -9,9 +9,9 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Callback;
+namespace MauticPlugin\MauticVonageBundle\Callback;
 
-use Mautic\SmsBundle\Exception\CallbackHandlerNotFound;
+use MauticPlugin\MauticVonageBundle\Exception\CallbackHandlerNotFound;
 
 class HandlerContainer
 {

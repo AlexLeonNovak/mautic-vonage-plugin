@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\EventListener;
+namespace MauticPlugin\MauticVonageBundle\EventListener;
 
 use Mautic\CoreBundle\Helper\InputHelper;
 use Mautic\LeadBundle\Entity\LeadEventLog;
@@ -17,8 +17,8 @@ use Mautic\LeadBundle\Entity\LeadEventLogRepository;
 use Mautic\LeadBundle\Event\LeadTimelineEvent;
 use Mautic\LeadBundle\EventListener\TimelineEventLogTrait;
 use Mautic\LeadBundle\LeadEvents;
-use Mautic\SmsBundle\Event\ReplyEvent;
-use Mautic\SmsBundle\SmsEvents;
+use MauticPlugin\MauticVonageBundle\Event\ReplyEvent;
+use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
@@ -77,7 +77,7 @@ class ReplySubscriber implements EventSubscriberInterface
             'sms',
             'sms',
             'reply',
-            'MauticSmsBundle:SubscribedEvents/Timeline:reply.html.php'
+            'MauticVonageBundle:SubscribedEvents/Timeline:reply.html.php'
         );
     }
 }

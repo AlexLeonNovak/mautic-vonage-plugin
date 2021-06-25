@@ -9,20 +9,20 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Broadcast;
+namespace MauticPlugin\MauticVonageBundle\Broadcast;
 
 use Mautic\CampaignBundle\Executioner\ContactFinder\Limiter\ContactLimiter;
 use Mautic\ChannelBundle\Event\ChannelBroadcastEvent;
-use Mautic\SmsBundle\Entity\Sms;
-use Mautic\SmsBundle\Model\SmsModel;
+use MauticPlugin\MauticVonageBundle\Entity\Sms;
+use MauticPlugin\MauticVonageBundle\Model\MessagesModel;
 use Symfony\Component\Translation\TranslatorInterface;
 
 class BroadcastExecutioner
 {
     /**
-     * @var SmsModel
+     * @var MessagesModel
      */
-    private $smsModel;
+    private $messagesModel;
 
     /**
      * @var ContactLimiter
@@ -47,9 +47,9 @@ class BroadcastExecutioner
     /**
      * BroadcastExecutioner constructor.
      */
-    public function __construct(SmsModel $smsModel, BroadcastQuery $broadcastQuery, TranslatorInterface $translator)
+    public function __construct(MessagesModel $messagesModel, BroadcastQuery $broadcastQuery, TranslatorInterface $translator)
     {
-        $this->smsModel       = $smsModel;
+        $this->messagesModel       = $messagesModel;
         $this->broadcastQuery = $broadcastQuery;
         $this->translator     = $translator;
     }
@@ -57,7 +57,7 @@ class BroadcastExecutioner
     public function execute(ChannelBroadcastEvent $event)
     {
         // Get list of published broadcasts or broadcast if there is only a single ID
-        $smses = $this->smsModel->getRepository()->getPublishedBroadcasts($event->getId());
+        $smses = $this->messagesModel->getRepository()->getPublishedBroadcasts($event->getId());
         while (false !== ($next = $smses->next())) {
             $sms                  = reset($next);
             $this->contactLimiter = new ContactLimiter($event->getBatch(), null, $event->getMinContactIdFilter(), $event->getMaxContactIdFilter(), [], null, null, $event->getLimit());
@@ -85,7 +85,7 @@ class BroadcastExecutioner
         while (!empty($contacts)) {
             foreach ($contacts as $contact) {
                 $contactId  = $contact['id'];
-                $results    = $this->smsModel->sendSms($sms, $contactId, [
+                $results    = $this->messagesModel->sendSms($sms, $contactId, [
                     'channel'=> [
                         'sms', $sms->getId(),
                     ],

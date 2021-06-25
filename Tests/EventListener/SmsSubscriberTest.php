@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Tests\EventListener;
+namespace MauticPlugin\MauticVonageBundle\Tests\EventListener;
 
 use Mautic\CoreBundle\Event\TokenReplacementEvent;
 use Mautic\CoreBundle\Model\AuditLogModel;
@@ -17,8 +17,8 @@ use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PageBundle\Entity\Trackable;
 use Mautic\PageBundle\Helper\TokenHelper;
 use Mautic\PageBundle\Model\TrackableModel;
-use Mautic\SmsBundle\EventListener\SmsSubscriber;
-use Mautic\SmsBundle\Helper\SmsHelper;
+use MauticPlugin\MauticVonageBundle\EventListener\SmsSubscriber;
+use MauticPlugin\MauticVonageBundle\Helper\SmsHelper;
 use PHPUnit\Framework\TestCase;
 
 class SmsSubscriberTest extends TestCase

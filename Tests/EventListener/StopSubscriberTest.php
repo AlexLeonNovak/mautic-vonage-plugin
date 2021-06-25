@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Tests\EventListener;
+namespace MauticPlugin\MauticVonageBundle\Tests\EventListener;
 
 use Mautic\LeadBundle\Entity\DoNotContact;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Model\DoNotContact as DoNotContactModel;
-use Mautic\SmsBundle\Event\ReplyEvent;
-use Mautic\SmsBundle\EventListener\StopSubscriber;
+use MauticPlugin\MauticVonageBundle\Event\ReplyEvent;
+use MauticPlugin\MauticVonageBundle\EventListener\StopSubscriber;
 
 class StopSubscriberTest extends \PHPUnit\Framework\TestCase
 {

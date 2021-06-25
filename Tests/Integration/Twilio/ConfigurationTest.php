@@ -9,13 +9,13 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Tests\Integration\Twilio;
+namespace MauticPlugin\MauticVonageBundle\Tests\Integration\Vonage;
 
 use Mautic\PluginBundle\Entity\Integration;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
-use Mautic\SmsBundle\Integration\Twilio\Configuration;
-use Twilio\Exceptions\ConfigurationException;
+use MauticPlugin\MauticVonageBundle\Integration\Vonage\Configuration;
+use Vonage\Exceptions\ConfigurationException;
 
 class ConfigurationTest extends \PHPUnit\Framework\TestCase
 {
@@ -41,7 +41,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
             ->willReturn($integrationSettings);
 
         $this->integrationHelper->method('getIntegrationObject')
-            ->with('Twilio')
+            ->with('Vonage')
             ->willReturn($this->integrationObject);
     }
 

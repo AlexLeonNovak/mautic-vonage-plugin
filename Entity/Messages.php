@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Entity;
+namespace MauticPlugin\MauticVonageBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
 /**
  * Class Sms.
  */
-class Sms extends FormEntity
+class Messages extends FormEntity
 {
     /**
      * @var int
@@ -52,6 +52,11 @@ class Sms extends FormEntity
      * @var string
      */
     private $message;
+
+	/**
+	 * @var ArrayCollection
+	 */
+    private $answers;
 
     /**
      * @var \DateTime
@@ -106,6 +111,7 @@ class Sms extends FormEntity
     {
         $this->lists = new ArrayCollection();
         $this->stats = new ArrayCollection();
+        $this->answers = new ArrayCollection();
     }
 
     /**
@@ -120,8 +126,8 @@ class Sms extends FormEntity
     {
         $builder = new ClassMetadataBuilder($metadata);
 
-        $builder->setTable('sms_messages')
-            ->setCustomRepositoryClass('Mautic\SmsBundle\Entity\SmsRepository');
+        $builder->setTable('vonage_messages')
+            ->setCustomRepositoryClass('MauticPlugin\MauticVonageBundle\Entity\MessagesRepository');
 
         $builder->addIdColumns();
 
@@ -137,6 +143,13 @@ class Sms extends FormEntity
             ->nullable()
             ->build();
 
+		$builder->createOneToMany('answers', 'MessageAnswers')
+			->setIndexBy('id')
+			->mappedBy('message')
+			->cascadePersist()
+			->fetchExtraLazy()
+			->build();
+
         $builder->addPublishDates();
 
         $builder->createField('sentCount', 'integer')
@@ -146,16 +159,16 @@ class Sms extends FormEntity
         $builder->addCategory();
 
         $builder->createManyToMany('lists', 'Mautic\LeadBundle\Entity\LeadList')
-            ->setJoinTable('sms_message_list_xref')
+            ->setJoinTable('vonage_message_list_xref')
             ->setIndexBy('id')
             ->addInverseJoinColumn('leadlist_id', 'id', false, false, 'CASCADE')
-            ->addJoinColumn('sms_id', 'id', false, false, 'CASCADE')
+            ->addJoinColumn('message_id', 'id', false, false, 'CASCADE')
             ->fetchExtraLazy()
             ->build();
 
         $builder->createOneToMany('stats', 'Stat')
             ->setIndexBy('id')
-            ->mappedBy('sms')
+            ->mappedBy('messages')
             ->cascadePersist()
             ->fetchExtraLazy()
             ->build();
@@ -173,7 +186,7 @@ class Sms extends FormEntity
         );
 
         $metadata->addConstraint(new Callback([
-            'callback' => function (Sms $sms, ExecutionContextInterface $context) {
+            'callback' => function (Messages $sms, ExecutionContextInterface $context) {
                 $type = $sms->getSmsType();
                 if ('list' == $type) {
                     $validator = $context->getValidator();
@@ -334,6 +347,25 @@ class Sms extends FormEntity
         $this->message = $message;
     }
 
+	/**
+	 * @return ArrayCollection
+	 */
+	public function getAnswers()
+	{
+		return $this->answers;
+	}
+
+	/**
+	 * @param ArrayCollection $answers
+	 * @return $this
+	 */
+	public function setAnswers(ArrayCollection $answers)
+	{
+		$this->answers = $answers;
+
+		return $this;
+	}
+
     /**
      * @return mixed
      */
@@ -428,7 +460,7 @@ class Sms extends FormEntity
     /**
      * Add list.
      *
-     * @return Sms
+     * @return self
      */
     public function addList(LeadList $list)
     {

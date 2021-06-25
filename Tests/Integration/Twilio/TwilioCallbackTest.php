@@ -9,16 +9,16 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace Mautic\SmsBundle\Tests\Integration\Twilio;
+namespace MauticPlugin\MauticVonageBundle\Tests\Integration\Vonage;
 
-use Mautic\SmsBundle\Helper\ContactHelper;
-use Mautic\SmsBundle\Integration\Twilio\Configuration;
-use Mautic\SmsBundle\Integration\Twilio\TwilioCallback;
+use MauticPlugin\MauticVonageBundle\Helper\ContactHelper;
+use MauticPlugin\MauticVonageBundle\Integration\Vonage\Configuration;
+use MauticPlugin\MauticVonageBundle\Integration\Vonage\VonageCallback;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class TwilioCallbackTest extends \PHPUnit\Framework\TestCase
+class VonageCallbackTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var ContactHelper|\PHPUnit\Framework\MockObject\MockObject
@@ -99,10 +99,10 @@ class TwilioCallbackTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @return TwilioCallback
+     * @return VonageCallback
      */
     private function getCallback()
     {
-        return new TwilioCallback($this->contactHelper, $this->configuration);
+        return new VonageCallback($this->contactHelper, $this->configuration);
     }
 }
