@@ -45,7 +45,7 @@ class SmsSendType extends AbstractType
                     'class'    => 'form-control',
                     'tooltip'  => 'mautic.sms.choose.smss',
                     'onchange' => 'Mautic.disabledSmsAction()',
-					'data-message-type' => $options['data']['message_type']
+					//'data-message-type' => $options['data']['message_type']
                 ],
                 'multiple'    => false,
                 'required'    => true,
@@ -54,6 +54,7 @@ class SmsSendType extends AbstractType
                         ['message' => 'mautic.sms.choosesms.notblank']
                     ),
                 ],
+				'message_type' => $options['message_type'] ?: 'sms',
             ]
         );
 
@@ -113,7 +114,8 @@ class SmsSendType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefined(['update_select']);
+		$resolver->setDefaults(['message_type' => 'sms']);
+        $resolver->setDefined(['update_select', 'message_type']);
     }
 
     /**

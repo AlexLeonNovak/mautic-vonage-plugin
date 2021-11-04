@@ -49,12 +49,30 @@ class AnswerListTransformer implements DataTransformerInterface
 		}
 
 		$result = new ArrayCollection();
+		$message = null;
+		$answersIds = [];
 		foreach ($value['list'] as $key => $array) {
-			$ans = new \MauticPlugin\MauticVonageBundle\Entity\MessageAnswers();
+			if (isset($array['id']) && (int)$array['id']) {
+				$ans = $this->repo->find($array['id']);
+				$answersIds[] = $array['id'];
+				if (!$message) {
+					$message = $ans->getMessage();
+				}
+			} else {
+				$ans = new \MauticPlugin\MauticVonageBundle\Entity\MessageAnswers();
+			}
 			$ans->setAnswer($array['answer']);
 			$ans->setField($array['field']);
 			$ans->setSetValue($array['set_value']);
 			$result->add($ans);
+		}
+		if ($message) {
+			foreach ($message->getAnswers() as $answer) {
+				/** @var $answer \MauticPlugin\MauticVonageBundle\Entity\MessageAnswers */
+				if (!in_array($answer->getId(), $answersIds)) {
+					$this->repo->deleteEntity($answer);
+				}
+			}
 		}
 		return $result;
 	}

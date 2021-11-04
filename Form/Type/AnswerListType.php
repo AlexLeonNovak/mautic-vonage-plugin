@@ -28,7 +28,6 @@ class AnswerListType extends SortableListType
 
 	public function buildForm(FormBuilderInterface $builder, array $options)
 	{
-//		$transformer = new IdToEntityModelTransformer($this->em, 'MauticPlugin\MauticVonageBundle\Entity\MessageAnswers', 'id', true);
 		$builder->add(
 			$builder->create(
 				'list',
@@ -56,7 +55,7 @@ class AnswerListType extends SortableListType
 					'constraints'    => [],
 					'error_bubbling' => false,
 				]
-			)//->addModelTransformer($transformer)
+			)
 		)->addModelTransformer(new AnswerListTransformer($this->em));
 	}
 

@@ -53,6 +53,7 @@ return [
                     'mautic.page.helper.token',
                     'mautic.asset.helper.token',
                     'mautic.vonage.helper.sms',
+					'mautic.helper.url',
                 ],
             ],
             'mautic.vonage.channel.subscriber' => [
@@ -81,6 +82,15 @@ return [
                 'class'     => \MauticPlugin\MauticVonageBundle\EventListener\TrackingSubscriber::class,
                 'arguments' => [
                     'mautic.vonage.repository.stat',
+					'doctrine.orm.entity_manager',
+					'request_stack',
+					'mautic.lead.model.dnc',
+					'mautic.model.factory',
+					'mautic.security',
+					'mautic.tracker.contact',
+					'event_dispatcher',
+					'mautic.vonage.helper.contact',
+					'mautic.lead.model.lead',
                 ],
             ],
             'mautic.vonage.subscriber.stop' => [
@@ -110,6 +120,14 @@ return [
                     'doctrine.orm.entity_manager',
                 ],
             ],
+			'mautic.vonage.answer.type' => [
+                'class'     => \MauticPlugin\MauticVonageBundle\Form\Type\AnswerType::class,
+                'arguments' => [
+					'translator',
+					'mautic.lead.model.lead',
+					'mautic.lead.model.field',
+                ],
+            ],
             'mautic.vonage.form.type.smsconfig' => [
                 'class' => \MauticPlugin\MauticVonageBundle\Form\Type\ConfigType::class,
             ],
@@ -126,6 +144,10 @@ return [
             ],
             'mautic.vonage.form.type.sms.campaign_reply_type' => [
                 'class' => \MauticPlugin\MauticVonageBundle\Form\Type\CampaignReplyType::class,
+            ],
+			'mautic.vonage.form.type.all_field_type' => [
+                'class' => \MauticPlugin\MauticVonageBundle\Form\Type\AllFieldsType::class,
+				'arguments' => ['mautic.lead.field.field_list',]
             ],
         ],
         'helpers' => [
@@ -189,6 +211,7 @@ return [
                 'arguments'    => [
                     'mautic.vonage.configuration',
                     'monolog.logger.mautic',
+					'event_dispatcher',
                 ],
                 'tag'          => 'mautic.vonage_transport',
                 'tagArguments' => [
@@ -206,6 +229,7 @@ return [
                     'mautic.vonage.configuration',
 					'request_stack',
 					'doctrine.orm.entity_manager',
+					'mautic.lead.model.lead',
                 ],
                 'tag'   => 'mautic.vonage_callback_handler',
             ],

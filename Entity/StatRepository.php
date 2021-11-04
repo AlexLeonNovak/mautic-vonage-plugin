@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticVonageBundle\Entity;
 
+use Doctrine\DBAL\Connection;
 use Mautic\CoreBundle\Entity\CommonRepository;
 use Mautic\CoreBundle\Helper\DateTimeHelper;
 use Mautic\LeadBundle\Entity\Lead;
@@ -178,6 +179,46 @@ class StatRepository extends CommonRepository
             's.date_'.$state
         );
     }
+
+
+    public function getLeadsStats(array $leadIds)
+	{
+		$query = $this->getEntityManager()->getConnection()->createQueryBuilder();
+		$query->select('s.id')
+			->from(MAUTIC_TABLE_PREFIX.'vonage_message_stats', 's');
+
+		if ($leadIds) {
+			$query->where('s.lead_id IN (:leadIds)')
+				->setParameter('leadIds', $leadIds, Connection::PARAM_STR_ARRAY)
+			;
+		}
+
+		$leads = $query->execute()->fetchAll();
+		$ids = array_column($leads, 'id');
+		return $this->getEntities(['ids' => $ids]);
+	}
+
+	public function debug($message = null, $nl = true)
+	{
+		return;
+		if (is_array($message) || is_object($message)) {
+			$output = print_r($message, true);
+		} elseif (is_bool($message)) {
+			$output = '(bool) ' . ($message ? 'true' : 'false');
+		} elseif (is_string($message)){
+			if (trim($message)) {
+				$output = $message;
+			} else {
+				$output = '(empty sring)';
+			}
+		} else {
+			$output = '=======================';
+		}
+		if ($nl){
+			$output .= PHP_EOL;
+		}
+		file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " " . $output, FILE_APPEND);
+	}
 
     /**
      * Updates lead ID (e.g. after a lead merge).

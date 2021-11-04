@@ -18,6 +18,7 @@ use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\CoreBundle\Entity\FormEntity;
 use Mautic\LeadBundle\Entity\LeadList;
 use Mautic\LeadBundle\Form\Validator\Constraints\LeadListAccess;
+use Mautic\PageBundle\Entity\Page;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -91,7 +92,48 @@ class Messages extends FormEntity
     /**
      * @var string
      */
-    private $smsType = 'template';
+    private $smsType = 'whatsapp';
+
+    private $field;
+
+    private $pageChangeField;
+
+    private $pageUnsubscribe;
+
+	/**
+	 * @var string
+	 */
+    private $setValue;
+
+	/**
+	 * @var string
+	 */
+    private $senderId;
+
+	/**
+	 * @var string
+	 */
+    private $whatsappTemplateNamespace;
+
+	/**
+	 * @var string
+	 */
+    private $whatsappTemplateName;
+
+	/**
+	 * @var string
+	 */
+    private $whatsappTemplateButtonParameter = null;
+
+	/**
+	 * @var array
+	 */
+    private $whatsappTemplateParameters = [];
+
+	/**
+	 * @var array
+	 */
+    private $details = [];
 
     /**
      * @var int
@@ -136,6 +178,7 @@ class Messages extends FormEntity
             ->build();
 
         $builder->createField('message', 'text')
+			->nullable()
             ->build();
 
         $builder->createField('smsType', 'text')
@@ -149,6 +192,43 @@ class Messages extends FormEntity
 			->cascadePersist()
 			->fetchExtraLazy()
 			->build();
+
+		$builder->createField('field', 'string')
+			->columnName('field')
+			->nullable()
+			->build();
+
+		$builder->createField('setValue', 'string')
+			->columnName('set_value')
+			->nullable()
+			->build();
+
+		$builder->createField('senderId', 'string')
+			->columnName('sender_id')
+			->nullable()
+			->build();
+
+		$builder->createField('whatsappTemplateNamespace', 'string')
+			->columnName('whatsapp_template_namespace')
+			->nullable()
+			->build();
+
+		$builder->createField('whatsappTemplateName', 'string')
+			->columnName('whatsapp_template_name')
+			->nullable()
+			->build();
+
+		$builder->createField('whatsappTemplateParameters', 'json_array')
+			->columnName('whatsapp_template_parameters')
+			->nullable()
+			->build();
+
+		$builder->createField('whatsappTemplateButtonParameter', 'string')
+			->columnName('whatsapp_template_button_parameter')
+			->nullable()
+			->build();
+
+		$builder->addField('details', 'json_array');
 
         $builder->addPublishDates();
 
@@ -166,6 +246,14 @@ class Messages extends FormEntity
             ->fetchExtraLazy()
             ->build();
 
+		$builder->createManyToOne('pageChangeField', 'Mautic\PageBundle\Entity\Page')
+			->addJoinColumn('page_change_field', 'id', true, false, 'SET NULL')
+			->build();
+
+		$builder->createManyToOne('pageUnsubscribe', 'Mautic\PageBundle\Entity\Page')
+			->addJoinColumn('page_unsubscribe', 'id', true, false, 'SET NULL')
+			->build();
+
         $builder->createOneToMany('stats', 'Stat')
             ->setIndexBy('id')
             ->mappedBy('messages')
@@ -173,6 +261,78 @@ class Messages extends FormEntity
             ->fetchExtraLazy()
             ->build();
     }
+
+	/**
+	 * @return mixed
+	 */
+	public function getField()
+	{
+		return $this->field;
+	}
+
+	/**
+	 * @param mixed $field
+	 */
+	public function setField($field): self
+	{
+		$this->field = $field;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSetValue(): ?string
+	{
+		return $this->setValue;
+	}
+
+	/**
+	 * @param string $setValue
+	 */
+	public function setSetValue(string $setValue): self
+	{
+		$this->setValue = $setValue;
+
+		return $this;
+	}
+
+	/**
+	 * @return Page
+	 */
+	public function getPageChangeField()
+	{
+		return $this->pageChangeField;
+	}
+
+	/**
+	 * @param mixed $pageChangeField
+	 */
+	public function setPageChangeField(Page $pageChangeField): self
+	{
+		$this->pageChangeField = $pageChangeField;
+		return $this;
+	}
+
+	/**
+	 * @return Page
+	 */
+	public function getPageUnsubscribe()
+	{
+		return $this->pageUnsubscribe;
+	}
+
+	/**
+	 * @param mixed $pageUnsubscribe
+	 */
+	public function setPageUnsubscribe(Page $pageUnsubscribe): self
+	{
+		$this->pageUnsubscribe = $pageUnsubscribe;
+		return $this;
+	}
+
+
 
     public static function loadValidatorMetadata(ClassMetadata $metadata)
     {
@@ -229,6 +389,7 @@ class Messages extends FormEntity
                     'message',
                     'language',
                     'category',
+					'sms'
                 ]
             )
             ->addProperties(
@@ -505,7 +666,7 @@ class Messages extends FormEntity
     /**
      * @param int $pendingCount
      *
-     * @return Sms
+     * @return Messages
      */
     public function setPendingCount($pendingCount)
     {
@@ -521,4 +682,116 @@ class Messages extends FormEntity
     {
         return $this->pendingCount;
     }
+
+	/**
+	 * @param string $senderId
+	 *
+	 * @return Messages
+	 */
+	public function setSenderId($senderId)
+	{
+		$this->senderId = $senderId;
+
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSenderId()
+	{
+		return trim($this->senderId);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getDetails()
+	{
+		return $this->details;
+	}
+
+	/**
+	 * @param array $details
+	 *
+	 * @return Messages
+	 */
+	public function setDetails($details)
+	{
+		$this->details = $details;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWhatsappTemplateNamespace(): ?string
+	{
+		return $this->whatsappTemplateNamespace;
+	}
+
+	/**
+	 * @param string $whatsappTemplateNamespace
+	 * @return Messages
+	 */
+	public function setWhatsappTemplateNamespace(string $whatsappTemplateNamespace): Messages
+	{
+		$this->whatsappTemplateNamespace = $whatsappTemplateNamespace;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWhatsappTemplateName(): ?string
+	{
+		return $this->whatsappTemplateName;
+	}
+
+	/**
+	 * @param string $whatsappTemplateName
+	 * @return Messages
+	 */
+	public function setWhatsappTemplateName(string $whatsappTemplateName): Messages
+	{
+		$this->whatsappTemplateName = $whatsappTemplateName;
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getWhatsappTemplateParameters(): array
+	{
+		return $this->whatsappTemplateParameters;
+	}
+
+	/**
+	 * @param array $whatsappTemplateParameters
+	 * @return Messages
+	 */
+	public function setWhatsappTemplateParameters(array $whatsappTemplateParameters): Messages
+	{
+		$this->whatsappTemplateParameters = $whatsappTemplateParameters;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWhatsappTemplateButtonParameter(): ?string
+	{
+		return trim($this->whatsappTemplateButtonParameter);
+	}
+
+	/**
+	 * @param string|null $whatsappTemplateButtonParameter
+	 * @return Messages
+	 */
+	public function setWhatsappTemplateButtonParameter(?string $whatsappTemplateButtonParameter): Messages
+	{
+		$this->whatsappTemplateButtonParameter = $whatsappTemplateButtonParameter;
+		return $this;
+	}
 }

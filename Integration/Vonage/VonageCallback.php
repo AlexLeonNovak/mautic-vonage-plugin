@@ -13,6 +13,8 @@ namespace MauticPlugin\MauticVonageBundle\Integration\Vonage;
 
 use Doctrine\ORM\EntityManager;
 use Mautic\CampaignBundle\Executioner\Scheduler\Mode\DateTime;
+use Mautic\LeadBundle\Entity\Lead;
+use Mautic\LeadBundle\Model\LeadModel;
 use MauticPlugin\MauticVonageBundle\Callback\CallbackInterface;
 use MauticPlugin\MauticVonageBundle\Entity\MessageAnswers;
 use MauticPlugin\MauticVonageBundle\Exception\ConfigurationException;
@@ -68,9 +70,13 @@ class VonageCallback
 	 */
 	private $em;
 	/**
-	 * @var mixed
+	 * @var array
 	 */
-	private $messageType;
+	private $messageTypes = [];
+	/**
+	 * @var LeadModel
+	 */
+	private $leadModel;
 
 	/**
      * VonageCallback constructor.
@@ -79,13 +85,15 @@ class VonageCallback
     	ContactHelper $contactHelper,
 		Configuration $configuration,
 		RequestStack $requestStack,
-		EntityManager $em
+		EntityManager $em,
+		LeadModel $leadModel
 	)
     {
         $this->contactHelper = $contactHelper;
         $this->configuration = $configuration;
         $this->validateRequest($requestStack->getCurrentRequest());
         $this->em = $em;
+		$this->leadModel = $leadModel;
     }
 
     /**
@@ -119,7 +127,7 @@ class VonageCallback
 		/** @var \MauticPlugin\MauticVonageBundle\Entity\StatRepository $statRepository */
 		$statRepository = $this->em->getRepository('MauticVonageBundle:Stat');
 		$ids = $this->getContacts()->getKeys();
-		return $statRepository->getEntities(['lead_id' => $ids, 'ignore_paginator' => true]);
+		return $statRepository->getLeadsStats($ids);
 	}
 
     /**
@@ -150,34 +158,37 @@ class VonageCallback
 
 	public function processField()
 	{
-		$answersRepository = $this->em->getRepository('MauticVonageBundle:MessageAnswers');
+		$this->debug();
 		$stats = $this->getStats();
 		foreach ($stats as $stat) {
+			$this->debug($stat->getId());
 			$details = $stat->getDetails();
 			if (isset($details['setAnswer'])) {
 				continue;
 			}
 			/** @var MessageAnswers[] $answers */
 			$message = $stat->getMessage();
-			if ($message->getSmsType() !== $this->messageType){
+			if (!in_array($message->getSmsType(), $this->messageTypes)){
 				continue;
 			}
-			$answers = $answersRepository->getEntities([
-				'message_id' => $message->getId(),
-				'ignore_paginator' => true,
-			]);
+			$answers = $message->getAnswers();
 			foreach ($answers as $answer) {
 				if ($answer->getAnswer() === $this->getMessage()) {
 					$lead = $stat->getLead();
 					$lead->addUpdatedField($answer->getField(), $answer->getSetValue());
-					$this->em->persist($lead);
-					$stat->setDetails(['setAnswer' => $answer->getId()]);
+					$stat->setDetails([
+						'setAnswer' => $message->getSmsType(),
+						'field' => $answer->getField(),
+						'val' => $answer->getSetValue(),
+						'answerId' => $answer->getId()
+					]);
+					$this->leadModel->saveEntity($lead);
 					$this->em->persist($stat);
-
 					$this->em->flush();
 				}
 			}
 		}
+		$this->debug();
 	}
 
     private function validateRequest(Request $request)
@@ -253,13 +264,47 @@ class VonageCallback
 		$this->isStatusMessage = isset($content['status']);
 		if ($this->isStatusMessage) {
 			$this->status = $content['status'];
-		} elseif ($content['message']['content']['type'] === 'text') {
-			$this->message = $content['message']['content']['text'];
+		} else {
+			switch($content['message']['content']['type']) {
+				case 'text':
+					$this->message = $content['message']['content']['text'];
+					break;
+				case 'button':
+					$this->message = $content['message']['content']['button']['text'];
+					break;
+				default:
+					$this->message = null;
+			}
 		}
 		$this->messageUuid = $content['message_uuid'];
 		$this->from = $content['from'];
 		$this->to = $content['to'];
-		$this->messageType = $content['to']['type'];
+		$this->messageTypes[] = $content['to']['type'];
+		if ($content['to']['type'] === 'whatsapp') {
+			$this->messageTypes[] = 'whatsapp_template';
+		}
 
     }
+
+	public function debug($message = null, $nl = true)
+	{
+		return;
+		if (is_array($message) || is_object($message)) {
+			$output = print_r($message, true);
+		} elseif (is_bool($message)) {
+			$output = '(bool) ' . ($message ? 'true' : 'false');
+		} elseif (is_string($message)){
+			if (trim($message)) {
+				$output = $message;
+			} else {
+				$output = '(empty sring)';
+			}
+		} else {
+			$output = '=======================';
+		}
+		if ($nl){
+			$output .= PHP_EOL;
+		}
+		file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " " . $output, FILE_APPEND);
+	}
 }

@@ -19,20 +19,49 @@ $view->extend('MauticCoreBundle:FormTheme:form_simple.html.php');
 $view->addGlobal('translationBase', 'mautic.sms');
 $view->addGlobal('mauticContent', 'sms');
 /** @var \MauticPlugin\MauticVonageBundle\Entity\Messages $sms */
-$type       = $sms->getSmsType();
+$type = $sms->getSmsType();
 $isExisting = $sms->getId();
 ?>
 
 <?php $view['slots']->start('primaryFormContent'); ?>
+<?= $view['assets']->includeScript('plugins/MauticVonageBundle/Assets/js/add_to_text.js'); ?>
 <div class="row">
     <div class="col-md-6">
-        <?php echo $view['form']->row($form['name']); ?>
+		<?php echo $view['form']->row($form['name']); ?>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <?php echo $view['form']->row($form['message']); ?>
+<div id="whatsapp_template"<?= ('whatsapp_template' === $type) ? '' : ' class="hide"'; ?>>
+    <div class="row">
+        <div class="col-md-6">
+			<?php echo $view['form']->row($form['whatsappTemplateNamespace']); ?>
+        </div>
+        <div class="col-md-6">
+			<?php echo $view['form']->row($form['whatsappTemplateName']); ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+			<?php echo $view['form']->row($form['whatsappTemplateParameters']); ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+			<?php echo $view['form']->row($form['whatsappTemplateButtonParameter']); ?>
+        </div>
+    </div>
+</div>
+
+<div id="message_template"<?= ('whatsapp_template' === $type) ? '  class="hide"' : ''; ?>>
+    <div class="row">
+        <div class="col-md-12">
+			<?php echo $view['form']->row($form['senderId']); ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+			<?php echo $view['form']->row($form['message']); ?>
+        </div>
     </div>
 </div>
 
@@ -50,14 +79,41 @@ $isExisting = $sms->getId();
 <?php echo $view['form']->row($form['isPublished']); ?>
 <?php echo $view['form']->row($form['smsType']); ?>
 
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+			<?php echo $view['translator']->trans('mautic.vonage.add_to_link'); ?>
+        </h3>
+    </div>
+    <div class="panel-body add-to-text-wrapper">
+		<?php echo $view['form']->row($form['pageChangeField']); ?>
+		<?php echo $view['form']->row($form['field']); ?>
+		<?php echo $view['form']->row($form['setValue']); ?>
+        <button class="add-to-text" type="button">
+            <i class="fa fa-plus-square" aria-hidden="true"></i>
+			<?php echo $view['translator']->trans('mautic.vonage.insert_to_text'); ?>
+        </button>
+    </div>
+</div>
+
+<div class="add-to-text-wrapper">
+
+	<?php echo $view['form']->row($form['pageUnsubscribe']); ?>
+
+    <button class="add-to-text" type="button">
+        <i class="fa fa-plus-square" aria-hidden="true"></i>
+		<?php echo $view['translator']->trans('mautic.vonage.insert_to_text'); ?>
+    </button>
+</div>
+
 <div id="leadList"<?php echo ('template' == $type) ? ' class="hide"' : ''; ?>>
-<!--    --><?php //echo $view['form']->row($form['lists']); ?>
-<!--    --><?php //echo $view['form']->row($form['publishUp']); ?>
-<!--    --><?php //echo $view['form']->row($form['publishDown']); ?>
+    <!--    --><?php //echo $view['form']->row($form['lists']); ?>
+    <!--    --><?php //echo $view['form']->row($form['publishUp']); ?>
+    <!--    --><?php //echo $view['form']->row($form['publishDown']); ?>
 </div>
 
 <div class="hide">
-    <?php echo $view['form']->rest($form); ?>
+	<?php echo $view['form']->rest($form); ?>
 </div>
 
 <?php

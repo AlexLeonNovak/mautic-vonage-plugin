@@ -47,7 +47,7 @@ class ChannelSubscriber implements EventSubscriberInterface
     {
 //        if (count($this->transportChain->getEnabledTransports()) > 0) {
             $event->addChannel(
-                'vonage',
+                'message',
                 [
                     MessageModel::CHANNEL_FEATURE => [
                         'campaignAction'             => 'vonage.send_message',

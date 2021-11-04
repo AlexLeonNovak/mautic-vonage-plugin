@@ -46,7 +46,7 @@ class BroadcastSubscriber implements EventSubscriberInterface
 
     public function onBroadcast(ChannelBroadcastEvent $event)
     {
-        if (!$event->checkContext('vonage')) {
+        if (!$event->checkContext('message')) {
             return;
         }
 

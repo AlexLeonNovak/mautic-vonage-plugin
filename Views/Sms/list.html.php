@@ -55,6 +55,8 @@ if (count($items)):
 
                 <th class="visible-sm visible-md visible-lg col-sms-stats"><?php echo $view['translator']->trans('mautic.core.stats'); ?></th>
 
+                <th class="visible-sm visible-md visible-lg col-sms-stats"><?php echo $view['translator']->trans('mautic.vonage.message_type'); ?></th>
+
                 <?php
                 echo $view->render(
                     'MauticCoreBundle:Helper:tableheader.html.php',
@@ -70,7 +72,7 @@ if (count($items)):
             </thead>
             <tbody>
             <?php
-            /** @var \MauticPlugin\MauticVonageBundle\Entity\Sms $item */
+            /** @var \MauticPlugin\MauticVonageBundle\Entity\Messages $item */
             foreach ($items as $item):
                 $type = $item->getSmsType();
                 ?>
@@ -152,6 +154,7 @@ if (count($items)):
                            ]
                        );
                        ?>
+                    <td class="visible-md visible-lg"><?php echo $item->getSmsType(); ?></td>
                     <td class="visible-md visible-lg"><?php echo $item->getId(); ?></td>
                 </tr>
             <?php endforeach; ?>

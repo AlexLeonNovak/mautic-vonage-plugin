@@ -65,13 +65,33 @@ class CampaignSendSubscriber implements EventSubscriberInterface
 				'formType'         => SmsSendType::class,
 				'formTypeOptions'  => [
 					'update_select' => 'campaignevent_properties_sms',
-					'data' => ['message_type'	=> 'whatsapp']
+					'message_type'	=> 'whatsapp'
 				],
 				'formTheme'        => 'MauticVonageBundle:FormTheme\SmsSendList',
-				'channel'          => 'vonage',
-				'channelIdField'   => 'vonage_whatsapp',
+				'channel'          => 'message',
+//				'channelIdField'   => 'vonage_whatsapp',
+				'channelIdField'   => 'sms',
 			]
 		);
+
+		$event->addAction(
+			'vonage.send_whatsapp_template',
+			[
+				'label'            => 'mautic.campaign.vonage.send_whatsapp_template',
+				//				'description'      => 'mautic.campaign.sms.send_text_sms.tooltip',
+				'eventName'        => SmsEvents::ON_CAMPAIGN_TRIGGER_ACTION,
+				'formType'         => SmsSendType::class,
+				'formTypeOptions'  => [
+					'update_select' => 'campaignevent_properties_sms',
+					'message_type'	=> 'whatsapp_template',
+				],
+				'formTheme'        => 'MauticVonageBundle:FormTheme\SmsSendList',
+				'channel'          => 'message',
+//				'channelIdField'   => 'vonage_whatsapp',
+				'channelIdField'   => 'sms',
+			]
+		);
+
 		$event->addAction(
 			'vonage.send_sms',
 			[
@@ -81,11 +101,12 @@ class CampaignSendSubscriber implements EventSubscriberInterface
 				'formType'         => SmsSendType::class,
 				'formTypeOptions'  => [
 					'update_select' => 'campaignevent_properties_sms',
-					'data' => ['message_type'	=> 'sms']
+					'message_type'	=> 'sms'
 				],
 				'formTheme'        => 'MauticVonageBundle:FormTheme\SmsSendList',
-				'channel'          => 'vonage',
-				'channelIdField'   => 'vonage_sms',
+				'channel'          => 'message',
+//				'channelIdField'   => 'vonage_sms',
+				'channelIdField'   => 'sms',
 			]
 		);
     }
@@ -117,7 +138,7 @@ class CampaignSendSubscriber implements EventSubscriberInterface
         }
 
         if (!empty($result['sent'])) {
-            $event->setChannel('sms', $sms->getId());
+            $event->setChannel('message', $sms->getId());
             $event->setResult($result);
         } else {
             $result['failed'] = true;

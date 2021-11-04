@@ -96,7 +96,7 @@ class CampaignReplySubscriber implements EventSubscriberInterface
             return;
         }
 
-        $decisionEvent->setChannel('vonage');
+        $decisionEvent->setChannel('message');
         $decisionEvent->setAsApplicable();
     }
 
@@ -108,6 +108,6 @@ class CampaignReplySubscriber implements EventSubscriberInterface
      */
     public function onReply(ReplyEvent $event)
     {
-        $this->realTimeExecutioner->execute(self::TYPE, $event, 'vonage');
+        $this->realTimeExecutioner->execute(self::TYPE, $event, 'message');
     }
 }

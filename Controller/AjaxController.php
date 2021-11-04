@@ -46,7 +46,7 @@ class AjaxController extends CommonAjaxController
                 }
 
                 $pending = $broadcastQuery->getPendingCount($sms);
-                $cacheStorageHelper->set(sprintf('%s|%s|%s', 'sms', $sms->getId(), 'pending'), $pending);
+                $cacheStorageHelper->set(sprintf('%s|%s|%s', 'message', $sms->getId(), 'pending'), $pending);
                 if (!$pending) {
                     continue;
                 }

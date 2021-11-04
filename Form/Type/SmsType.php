@@ -24,9 +24,11 @@ use Mautic\CoreBundle\Form\Type\FormButtonsType;
 use Mautic\CoreBundle\Form\Type\SortableListType;
 use Mautic\CoreBundle\Form\Type\SortableValueLabelListType;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
+use Mautic\LeadBundle\Form\Type\LeadFieldsType;
 use Mautic\LeadBundle\Form\Type\LeadListType;
+use Mautic\PageBundle\Form\Type\PageListType;
+use Mautic\PluginBundle\Form\Type\FieldsType;
 use MauticPlugin\MauticVonageBundle\Entity\Messages;
-use MauticPlugin\MauticVonageBundle\Entity\Sms;
 use MauticPlugin\MauticVonageBundle\Form\DataTransformer\AnswerListTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -40,7 +42,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Count;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class SmsType.
@@ -73,6 +77,22 @@ class SmsType extends AbstractType
 		);
 
 		$builder->add(
+			'senderId',
+			TextType::class,
+			[
+				'label' => 'mautic.vonage.form.internal.sender_id',
+				'label_attr' => ['class' => 'control-label'],
+				'attr' => [
+					'class' => 'form-control',
+					'tooltip' => 'mautic.vonage.form.internal.sender_id.tooltip'
+				],
+				'required'    => false,
+			]
+		);
+
+
+
+		$builder->add(
 			'description',
 			TextareaType::class,
 			[
@@ -96,6 +116,7 @@ class SmsType extends AbstractType
 					'data-token-activator' => '{',
 //					'data-token-visual'    => 'false',
 				],
+				'required' => false,
 			]
 		);
 
@@ -109,6 +130,33 @@ class SmsType extends AbstractType
 		);
 
 
+		$builder->add(
+			'field',
+			AllFieldsType::class,
+			[
+				'label'                 => 'mautic.lead.campaign.event.field',
+				'label_attr'            => ['class' => 'control-label'],
+//				'multiple'              => false,
+//				'placeholder'           => 'mautic.core.select',
+				'attr'                  => [
+					'class'    => 'form-control',
+				],
+				'required'    => false,
+			]
+		);
+
+		$builder->add(
+			'setValue',
+			TextType::class,
+			[
+				'label'          => 'mautic.vonage.form.set_value',
+				'error_bubbling' => true,
+				'attr'           => ['class' => 'form-control'],
+				'required'    => false,
+			]
+		);
+
+
 		$builder->add('isPublished', YesNoButtonGroupType::class);
 
 		//add lead lists
@@ -116,7 +164,7 @@ class SmsType extends AbstractType
 		$builder->add(
 			$builder->create(
 				'lists',
-				LeadListType::class,
+				AllFieldsType::class,
 				[
 					'label' => 'mautic.email.form.list',
 					'label_attr' => ['class' => 'control-label'],
@@ -168,8 +216,97 @@ class SmsType extends AbstractType
 			'category',
 			CategoryListType::class,
 			[
-				'bundle' => 'sms',
+				'bundle' => 'messages',
 			]
+		);
+
+		$builder->add(
+			'whatsappTemplateNamespace',
+			TextType::class,
+			[
+				'label' => 'mautic.sms.form.internal.whatsapp.namespace',
+				'label_attr' => ['class' => 'control-label'],
+				'attr' => ['class' => 'form-control'],
+				'required' => false,
+			]
+		);
+
+		$builder->add(
+			'whatsappTemplateName',
+			TextType::class,
+			[
+				'label' => 'mautic.sms.form.internal.whatsapp.name',
+				'label_attr' => ['class' => 'control-label'],
+				'attr' => ['class' => 'form-control'],
+				'required' => false,
+			]
+		);
+
+		$builder->add(
+			$builder->create(
+				'whatsappTemplateParameters',
+				SortableListType::class,
+				[
+					'option_required' => false,
+					'label' => 'mautic.sms.form.internal.whatsapp.params',
+					'label_attr' => ['class' => 'control-label'],
+					'attr' => ['class' => 'form-control'],
+					'required' => false,
+				]
+			)
+		);
+
+		$builder->add(
+			'whatsappTemplateButtonParameter',
+			TextType::class,
+			[
+				'label' => 'mautic.vonage.form.internal.whatsapp.btn_param',
+				'label_attr' => ['class' => 'control-label'],
+				'attr' => [
+					'class' => 'form-control',
+					'tooltip' => 'mautic.vonage.form.internal.whatsapp.btn_param.tooltip'
+				],
+				'required'    => false,
+			]
+		);
+
+
+		$transformer = new IdToEntityModelTransformer($this->em, 'MauticPageBundle:Page');
+
+		$builder->add(
+			$builder->create(
+			'pageChangeField',
+			PageListType::class,
+			[
+				'label'      => 'mautic.vonage.form.page.change_field',
+				'label_attr' => ['class' => 'control-label'],
+				'attr'       => [
+					'class'   => 'form-control',
+					'tooltip' => 'mautic.vonage.form.page.change_field.descr',
+					'data-get-to-text' => ''
+				],
+				'multiple' => false,
+				'required' => false,
+			]
+			)->addModelTransformer($transformer)
+		);
+
+		$builder->add(
+			$builder->create(
+			'pageUnsubscribe',
+			PageListType::class,
+			[
+				'label'      => 'mautic.vonage.form.page.unsubscribe',
+				'label_attr' => ['class' => 'control-label'],
+				'attr'       => [
+					'class'   => 'form-control',
+					'tooltip' => 'mautic.vonage.form.page.unsubscribe.descr',
+					'data-get-to-text' => ''
+				],
+				'multiple' => false,
+				'required' => false,
+			]
+			)->addModelTransformer($transformer)
 		);
 
 		$builder->add(
@@ -194,9 +331,11 @@ class SmsType extends AbstractType
 				'attr' => [
 					'class' => 'form-control',
 //					'tooltip' => 'mautic.sms.config.select_default_transport',
+					'onchange' => 'Mautic.changeMessageType(this)'
 				],
 				'choices' => [
 					'WhatsApp' => 'whatsapp',
+					'WhatsApp Template' => 'whatsapp_template',
 					'SMS' => 'sms',
 				]
 			]

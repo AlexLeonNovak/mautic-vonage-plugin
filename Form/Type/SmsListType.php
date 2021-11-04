@@ -33,13 +33,14 @@ class SmsListType extends AbstractType
                 'model'               => 'vonage.messages',
                 'model_lookup_method' => 'getLookupResults',
                 'lookup_arguments'    => function (Options $options) {
+					$mt = $options['message_type'] ?: 'sms';
                     return [
                         'type'    => SmsType::class,
                         'filter'  => '$data',
                         'limit'   => 0,
                         'start'   => 0,
                         'options' => [
-                            'message_type' => $options['attr']['data-message-type'],
+                            'message_type' => $mt,
                         ],
                     ];
                 },
@@ -54,6 +55,8 @@ class SmsListType extends AbstractType
                 'required' => false,
             ]
         );
+
+		$resolver->setDefined(['message_type']);
     }
 
     /**

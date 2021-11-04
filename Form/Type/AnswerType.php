@@ -5,20 +5,54 @@ namespace MauticPlugin\MauticVonageBundle\Form\Type;
 
 
 use Mautic\CoreBundle\Form\Type\DynamicContentFilterEntryType;
+use Mautic\CoreBundle\Form\Type\SortableValueLabelListType;
+use Mautic\CoreBundle\Helper\AbstractFormFieldHelper;
 use Mautic\LeadBundle\Form\Type\FilterType;
 use Mautic\LeadBundle\Form\Type\LeadFieldsType;
 use Mautic\LeadBundle\Form\Type\LeadListType;
+use Mautic\LeadBundle\Helper\FormFieldHelper;
+use Mautic\LeadBundle\Model\FieldModel;
+use Mautic\LeadBundle\Model\LeadModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class AnswerType extends AbstractType
 {
+
+	/**
+	 * @var TranslatorInterface
+	 */
+	private $translator;
+	/**
+	 * @var FieldModel
+	 */
+	private $fieldModel;
+	/**
+	 * @var LeadModel
+	 */
+	private $leadModel;
+
+	public function __construct(
+		TranslatorInterface $translator,
+		LeadModel $leadModel,
+		FieldModel $fieldModel
+	)
+	{
+		$this->translator = $translator;
+		$this->leadModel  = $leadModel;
+		$this->fieldModel = $fieldModel;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -32,31 +66,24 @@ class AnswerType extends AbstractType
 				'label'          => 'mautic.vonage.answer',
 				'error_bubbling' => true,
 				'attr'           => ['class' => 'form-control'],
+				'required'       => false,
 			]
 		);
 
 		$builder->add(
 			'field',
-			LeadFieldsType::class,
+			AllFieldsType::class,
 			[
 				'label'                 => 'mautic.lead.campaign.event.field',
 				'label_attr'            => ['class' => 'control-label'],
 				'multiple'              => false,
-				'with_company_fields'   => false,
-				'with_tags'             => false,
-				'with_utm'              => false,
 				'placeholder'           => 'mautic.core.select',
 				'attr'                  => [
 					'class'    => 'form-control',
 //					'tooltip'  => 'mautic.lead.campaign.event.field_descr',
 //					'onchange' => 'Mautic.updateLeadFieldValues(this)',
 				],
-				'required'    => true,
-				'constraints' => [
-					new NotBlank(
-						['message' => 'mautic.core.value.required']
-					),
-				],
+				'required'    => false,
 			]
 		);
 
@@ -64,7 +91,7 @@ class AnswerType extends AbstractType
 			'set_value',
 			TextType::class,
 			[
-				'label'          => 'mautic.core.value',
+				'label'          => 'mautic.vonage.form.set_value',
 				'error_bubbling' => true,
 				'attr'           => ['class' => 'form-control'],
 			]

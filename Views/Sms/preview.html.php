@@ -8,8 +8,8 @@
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
-/** @var \MauticPlugin\MauticVonageBundle\Entity\Sms $sms */
+/** @var \MauticPlugin\MauticVonageBundle\Entity\Messages $messages */
 ?>
 <blockquote>
-    <p><?=$sms->getMessage(); ?></p>
+    <p><?=$messages->getMessage(); ?></p>
 </blockquote>

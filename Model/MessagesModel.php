@@ -222,6 +222,7 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
      */
     public function sendSms(Messages $sms, $sendTo, $options = [])
     {
+    	$this->debug('MessagesModel:sendSms');
         $channel = (isset($options['channel'])) ? $options['channel'] : null;
         $listId  = (isset($options['listId'])) ? $options['listId'] : null;
 
@@ -256,10 +257,11 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
             }
         }
         $contactIds = array_keys($contacts);
+        $this->debug($contactIds);
 
         /** @var DoNotContactRepository $dncRepo */
         $dncRepo = $this->em->getRepository('MauticLeadBundle:DoNotContact');
-        $dnc     = $dncRepo->getChannelList('sms', $contactIds);
+        $dnc     = $dncRepo->getChannelList('message', $contactIds);
 
         if (!empty($dnc)) {
             foreach ($dnc as $removeMeId => $removeMeReason) {
@@ -278,7 +280,7 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
 
             $queued = $this->messageQueueModel->processFrequencyRules(
                 $contacts,
-                'sms',
+                'message',
                 $sms->getId(),
                 $campaignEventId,
                 3,
@@ -346,8 +348,13 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
                         'name'    => $sms->getName(),
                         'content' => $tokenEvent->getContent(),
                     ];
-
+					$this->debug([
+						'lead id' => $lead->getId(),
+						'lead phone' => $lead->getLeadPhoneNumber(),
+						'message text' => $tokenEvent->getContent()
+					]);
                     $metadata = $this->transport->sendSms($lead, $tokenEvent->getContent(), $stat);
+                    $this->debug($metadata);
                     if (isset($metadata['message_uuid'])) {
                     	$stat->setMessageUuid($metadata['message_uuid']);
 						$sendResult['sent'] = true;
@@ -561,7 +568,7 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
      */
     public function getSmsClickStats($smsId)
     {
-        return $this->pageTrackableModel->getTrackableList('sms', $smsId);
+        return $this->pageTrackableModel->getTrackableList('message', $smsId);
     }
 
     /**
@@ -599,4 +606,21 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
 
         return $results;
     }
+
+	public function debug($message = null, $nl = true)
+	{
+		return;
+		if (is_array($message) || is_object($message)){
+			$output = print_r($message, true);
+		} else
+			if (is_string($message)){
+				$output = $message;
+			} else {
+				$output = '=======================';
+			}
+		if ($nl){
+			$output .= PHP_EOL;
+		}
+		file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " " . $output, FILE_APPEND);
+	}
 }
