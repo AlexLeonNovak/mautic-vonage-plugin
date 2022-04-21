@@ -84,22 +84,22 @@ if (count($items)):
                             $permissions['sms:smses:editother'],
                             $item->getCreatedBy()
                         );
-                        $customButtons = [
-                            [
-                                'attr' => [
-                                    'data-toggle' => 'ajaxmodal',
-                                    'data-target' => '#MauticSharedModal',
-                                    'data-header' => $view['translator']->trans('mautic.sms.smses.header.preview'),
-                                    'data-footer' => 'false',
-                                    'href'        => $view['router']->path(
-                                        'mautic_sms_action',
-                                        ['objectId' => $item->getId(), 'objectAction' => 'preview']
-                                    ),
-                                ],
-                                'btnText'   => $view['translator']->trans('mautic.sms.preview'),
-                                'iconClass' => 'fa fa-share',
-                            ],
-                        ];
+//                        $customButtons = [
+//                            [
+//                                'attr' => [
+//                                    'data-toggle' => 'ajaxmodal',
+//                                    'data-target' => '#MauticSharedModal',
+//                                    'data-header' => $view['translator']->trans('mautic.sms.smses.header.preview'),
+//                                    'data-footer' => 'false',
+//                                    'href'        => $view['router']->path(
+//                                        'mautic_sms_action',
+//                                        ['objectId' => $item->getId(), 'objectAction' => 'preview']
+//                                    ),
+//                                ],
+//                                'btnText'   => $view['translator']->trans('mautic.sms.preview'),
+//                                'iconClass' => 'fa fa-share',
+//                            ],
+//                        ];
                         echo $view->render(
                             'MauticCoreBundle:Helper:list_actions.html.php',
                             [
@@ -118,7 +118,7 @@ if (count($items)):
                                     ),
                                 ],
                                 'routeBase'     => 'sms',
-                                'customButtons' => $customButtons,
+//                                'customButtons' => $customButtons,
                             ]
                         );
                         ?>
@@ -127,7 +127,7 @@ if (count($items)):
                         <div>
                             <?php echo $view->render(
                                 'MauticCoreBundle:Helper:publishstatus_icon.html.php',
-                                ['item' => $item, 'model' => 'sms']
+                                ['item' => $item, 'model' => 'vonage.messages']
                             ); ?>
                             <a href="<?php echo $view['router']->path(
                                 'mautic_sms_action',

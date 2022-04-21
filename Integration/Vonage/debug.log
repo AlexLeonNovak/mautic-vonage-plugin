@@ -1,0 +1,35 @@
+2022-02-03 09:53:57 =======================
+2022-02-03 09:53:57 Array
+(
+    [from] => Array
+        (
+            [type] => sms
+            [number] => 972525251650
+        )
+
+    [to] => Array
+        (
+            [type] => sms
+            [number] => 380672265958
+        )
+
+    [message] => Array
+        (
+            [content] => Array
+                (
+                    [type] => text
+                    [text] => test message
+https://bit.ly/3rmUr2q
+Unsubscribe: https://bit.ly/3AUZpXw
+                )
+
+        )
+
+)
+
+2022-02-03 09:53:57 {"from":{"type":"sms","number":"972525251650"},"to":{"type":"sms","number":"380672265958"},"message":{"content":{"type":"text","text":"test message\r\nhttps:\/\/bit.ly\/3rmUr2q\r\nUnsubscribe: https:\/\/bit.ly\/3AUZpXw"}}}
+2022-02-03 09:53:58 Array
+(
+    [message_uuid] => 3e6ffdbc-0260-48ac-82bf-5d4676422995
+)
+

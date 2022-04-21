@@ -29,6 +29,7 @@ use MauticPlugin\MauticVonageBundle\Entity\Stat;
 use MauticPlugin\MauticVonageBundle\Event\SmsEvent;
 use MauticPlugin\MauticVonageBundle\Event\SmsSendEvent;
 use MauticPlugin\MauticVonageBundle\Form\Type\SmsType;
+use MauticPlugin\MauticVonageBundle\Integration\Vonage\Configuration;
 use MauticPlugin\MauticVonageBundle\Sms\TransportChain;
 use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Symfony\Component\EventDispatcher\Event;
@@ -61,12 +62,18 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
      */
     private $cacheStorageHelper;
 
-    public function __construct(
+	/**
+	 * @var Configuration
+	 */
+	private $configuration;
+
+	public function __construct(
     	TrackableModel $pageTrackableModel,
 		LeadModel $leadModel,
 		MessageQueueModel $messageQueueModel,
 		TransportChain $transport,
-		CacheStorageHelper $cacheStorageHelper
+		CacheStorageHelper $cacheStorageHelper,
+		Configuration $configuration
 	)
     {
         $this->pageTrackableModel = $pageTrackableModel;
@@ -74,6 +81,7 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
         $this->messageQueueModel  = $messageQueueModel;
         $this->transport          = $transport;
         $this->cacheStorageHelper = $cacheStorageHelper;
+		$this->configuration	  = $configuration;
     }
 
     /**
@@ -225,12 +233,13 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
     	$this->debug('MessagesModel:sendSms');
         $channel = (isset($options['channel'])) ? $options['channel'] : null;
         $listId  = (isset($options['listId'])) ? $options['listId'] : null;
-
-        if ($sendTo instanceof Lead) {
-            $sendTo = [$sendTo];
-        } elseif (!is_array($sendTo)) {
-            $sendTo = [$sendTo];
-        }
+		if ($this->configuration->isTestMode()) {
+			$sendTo = $this->configuration->getTestContacts();
+		} elseif ($sendTo instanceof Lead) {
+			$sendTo = [$sendTo];
+		} elseif (!is_array($sendTo)) {
+			$sendTo = [$sendTo];
+		}
 
         $sentCount       = 0;
         $failedCount     = 0;
@@ -246,11 +255,9 @@ class MessagesModel extends FormModel implements AjaxLookupModelInterface
         }
 
         if ($fetchContacts) {
-            $foundContacts = $this->leadModel->getEntities(
-                [
-                    'ids' => $fetchContacts,
-                ]
-            );
+            $foundContacts = $this->leadModel->getEntities([
+				'ids' => $fetchContacts,
+			]);
 
             foreach ($foundContacts as $contact) {
                 $contacts[$contact->getId()] = $contact;

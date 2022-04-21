@@ -162,7 +162,7 @@ class SmsSubscriber implements EventSubscriberInterface
 				}
 			}
 
-//			$this->debug($content);
+			$this->debug($content);
 			$this->debug($tokens);
 
             $content = str_replace(array_keys($tokens), array_values($tokens), $content);

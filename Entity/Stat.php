@@ -108,6 +108,7 @@ class Stat
 
 		$builder->createField('messageUuid', 'string')
 			->columnName('message_uuid')
+			->nullable()
 			->build();
 
         $builder->addLead(true, 'SET NULL');

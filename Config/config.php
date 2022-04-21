@@ -268,6 +268,7 @@ return [
                     'mautic.channel.model.queue',
                     'mautic.vonage.transport_chain',
                     'mautic.helper.cache_storage',
+					'mautic.vonage.configuration',
                 ],
             ],
         ],
@@ -408,5 +409,7 @@ return [
         'sms_frequency_number'     => 0,
         'sms_frequency_time'       => 'DAY',
         'vonage_transport'            => 'mautic.vonage.transport',
+		'test_mode'				=> false,
+		'test_contacts'			=> []
     ],
 ];

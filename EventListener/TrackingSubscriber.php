@@ -20,6 +20,7 @@ use libphonenumber\PhoneNumberUtil;
 use Mautic\CoreBundle\Event\TokenReplacementEvent;
 use Mautic\CoreBundle\Helper\ClickthroughHelper;
 use Mautic\DynamicContentBundle\DynamicContentEvents;
+use Mautic\LeadBundle\Event\ChannelSubscriptionChange;
 use Mautic\LeadBundle\Helper\TokenHelper;
 use Mautic\CoreBundle\Factory\ModelFactory;
 use Mautic\CoreBundle\Helper\PageHelper;
@@ -194,16 +195,16 @@ class TrackingSubscriber implements EventSubscriberInterface
 			$number = $this->sanitizeNumber($contact->getLeadPhoneNumber());
 			$contacts = $this->contactHelper->findContactsByNumber($number);
 			foreach ($contacts as $_contact) {
-				$this->doNotContactModel->addDncForContact(
-					$_contact->getId(),
-					'message',
-					DoNotContact::UNSUBSCRIBED
-				);
-				$this->doNotContactModel->addDncForContact(
-					$_contact->getId(),
-					'email',
-					DoNotContact::UNSUBSCRIBED
-				);
+				foreach (['message', 'email'] as $channel) {
+					$this->doNotContactModel->addDncForContact(
+						$_contact->getId(),
+						$channel,
+						DoNotContact::UNSUBSCRIBED
+					);
+					$event = new ChannelSubscriptionChange($_contact, $channel, DoNotContact::IS_CONTACTABLE,
+						DoNotContact::UNSUBSCRIBED);
+					$this->dispatcher->dispatch(LeadEvents::CHANNEL_SUBSCRIPTION_CHANGED, $event);
+				}
 			}
 		}
 		$this->debug([

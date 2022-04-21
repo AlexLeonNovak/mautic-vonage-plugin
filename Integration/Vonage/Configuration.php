@@ -36,6 +36,16 @@ class Configuration
      */
     private $secret;
 
+	/**
+	 * @var bool
+	 */
+	private $testMode = false;
+
+	/**
+	 * @var array
+	 */
+	private $testContacts = [];
+
     /**
      * Configuration constructor.
      */
@@ -55,6 +65,29 @@ class Configuration
 
         return $this->sendingPhoneNumber;
     }
+
+	/**
+	 * @return array
+	 *
+	 * @throws ConfigurationException
+	 */
+	public function getTestContacts(): array
+	{
+		$this->setConfiguration();
+
+		return $this->testContacts;
+	}
+
+	/**
+	 * @return bool
+	 * @throws ConfigurationException
+	 */
+	public function isTestMode()
+	{
+		$this->setConfiguration();
+
+		return $this->testMode;
+	}
 
     /**
      * @return string
@@ -94,8 +127,8 @@ class Configuration
         if (!$integration || !$integration->getIntegrationSettings()->getIsPublished()) {
             throw new ConfigurationException();
         }
-
-        $this->sendingPhoneNumber = $integration->getIntegrationSettings()->getFeatureSettings()['sending_phone_number'];
+		$feature = $integration->getIntegrationSettings()->getFeatureSettings();
+        $this->sendingPhoneNumber = $feature['sending_phone_number'];
         if (empty($this->sendingPhoneNumber)) {
             throw new ConfigurationException();
         }
@@ -107,5 +140,8 @@ class Configuration
 
         $this->key = $keys['key'];
         $this->secret  = $keys['secret'];
+
+		$this->testMode = $feature['test_mode'] ?: false;
+		$this->testContacts = $feature['test_contacts'] ?: [];
     }
 }

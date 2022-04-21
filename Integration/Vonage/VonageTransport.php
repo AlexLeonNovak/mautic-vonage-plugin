@@ -181,7 +181,7 @@ class VonageTransport implements TransportInterface
 				];
 			}
 			$this->debug($bodyMessage);
-
+			$this->logger->addInfo('Vonage body message', ['body' => $bodyMessage]);
 			$requestMessage = $this->requestMessage($bodyMessage);
 
 			$this->debug(json_decode($requestMessage, true));
@@ -194,12 +194,12 @@ class VonageTransport implements TransportInterface
                 $message,
                 ['exception' => $exception]
             );
-			$this->debug($exception);
+			$this->debug('ConfigurationException: '. $message);
 
             return $message;
         } catch (\Exception $exception) {
-			$this->debug($exception);
-			$this->logger->addWarning(
+			$this->debug('Exception: ' . $exception->getMessage());
+			$this->logger->addError(
 				$exception->getMessage(),
 				['exception' => $exception]
 			);
@@ -274,7 +274,6 @@ class VonageTransport implements TransportInterface
 
 	public function debug($message = null, $nl = true)
 	{
-		return;
 		if (is_array($message) || is_object($message)) {
 			$output = print_r($message, true);
 		} elseif (is_bool($message)) {
@@ -283,7 +282,7 @@ class VonageTransport implements TransportInterface
 			if (trim($message)) {
 				$output = $message;
 			} else {
-				$output = '(empty sring)';
+				$output = '(empty string)';
 			}
 		} else {
 			$output = '=======================';

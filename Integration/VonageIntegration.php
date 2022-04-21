@@ -11,11 +11,33 @@
 
 namespace MauticPlugin\MauticVonageBundle\Integration;
 
+use Doctrine\ORM\EntityManager;
+use Mautic\CoreBundle\Form\Type\SortableListType;
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
+use Mautic\CoreBundle\Helper\CacheStorageHelper;
+use Mautic\CoreBundle\Helper\EncryptionHelper;
+use Mautic\CoreBundle\Helper\PathsHelper;
+use Mautic\CoreBundle\Model\NotificationModel;
+use Mautic\LeadBundle\Entity\Lead;
+use Mautic\LeadBundle\Form\Type\LeadListType;
+use Mautic\LeadBundle\Form\Type\ListType;
+use Mautic\LeadBundle\Model\CompanyModel;
+use Mautic\LeadBundle\Model\DoNotContact;
+use Mautic\LeadBundle\Model\FieldModel;
+use Mautic\LeadBundle\Model\LeadModel;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
+use Mautic\PluginBundle\Model\IntegrationEntityModel;
+use Monolog\Logger;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class VonageIntegration.
@@ -26,6 +48,52 @@ class VonageIntegration extends AbstractIntegration
      * @var bool
      */
     protected $coreIntegration = true;
+
+
+	/**
+	 * @var EntityManager
+	 */
+	private $entityManager;
+
+	public function __construct(
+		EventDispatcherInterface $eventDispatcher,
+		CacheStorageHelper $cacheStorageHelper,
+		EntityManager $entityManager,
+		Session $session,
+		RequestStack $requestStack,
+		Router $router,
+		TranslatorInterface $translator,
+		Logger $logger,
+		EncryptionHelper $encryptionHelper,
+		LeadModel $leadModel,
+		CompanyModel $companyModel,
+		PathsHelper $pathsHelper,
+		NotificationModel $notificationModel,
+		FieldModel $fieldModel,
+		IntegrationEntityModel $integrationEntityModel,
+		DoNotContact $doNotContact
+	) {
+		$this->entityManager = $entityManager;
+
+		parent::__construct(
+			$eventDispatcher,
+			$cacheStorageHelper,
+			$entityManager,
+			$session,
+			$requestStack,
+			$router,
+			$translator,
+			$logger,
+			$encryptionHelper,
+			$leadModel,
+			$companyModel,
+			$pathsHelper,
+			$notificationModel,
+			$fieldModel,
+			$integrationEntityModel,
+			$doNotContact
+		);
+	}
 
     /**
      * {@inheritdoc}
@@ -89,8 +157,56 @@ class VonageIntegration extends AbstractIntegration
                         'class'   => 'form-control',
                         'tooltip' => 'mautic.sms.config.form.sms.sending_phone_number.tooltip',
                     ],
+
                 ]
             );
+
+			$builder->add(
+				'test_mode',
+				YesNoButtonGroupType::class,
+				[
+					'label' => 'Test mode',
+					'label_attr' => ['class' => 'control-label'],
+					'required'   => false,
+					'attr'       => [
+						'class'   => 'form-control',
+					],
+					'data'=> $data['test_mode'] ?? false,
+				]
+			);
+
+			$leads = $this->entityManager
+				->getConnection()
+				->createQueryBuilder()
+				->select('l.id, l.email')
+				->from(MAUTIC_TABLE_PREFIX.'leads', 'l')
+				->andWhere('l.is_published = 1')
+				->execute()
+				->fetchAll();
+
+			$choices = [];
+			foreach ($leads as $lead) {
+				$choices[$lead['email']] = $lead['id'];
+			}
+			$builder->add(
+				'test_contacts',
+				ChoiceType::class,
+				[
+					'multiple'          => true,
+//					'error_bubbling' => false,
+					'choices' => $choices,
+					'label' => 'Contacts for test mode (Leads)',
+					'label_attr' => ['class' => 'control-label'],
+					'required'   => false,
+					'attr'       => [
+						'class'   => 'form-control',
+					],
+//					'with_labels'     => false,
+//					'key_value_pairs' => false,
+//					'option_required' => false,
+				]
+			);
+
 //            $builder->add(
 //                'disable_trackable_urls',
 //                YesNoButtonGroupType::class,

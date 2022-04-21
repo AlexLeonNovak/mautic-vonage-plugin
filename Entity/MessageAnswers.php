@@ -120,7 +120,7 @@ class MessageAnswers
 	/**
 	 * @return string
 	 */
-	public function getField(): string
+	public function getField(): ?string
 	{
 		return $this->field;
 	}
@@ -128,7 +128,7 @@ class MessageAnswers
 	/**
 	 * @param string $field
 	 */
-	public function setField(string $field): void
+	public function setField(?string $field): void
 	{
 		$this->field = $field;
 	}

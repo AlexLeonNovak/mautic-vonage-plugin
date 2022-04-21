@@ -33,6 +33,7 @@ class CallbackController extends CommonController
 
 	public function messageStatusAction(Request $request): Response
 	{
+		var_dump($_POST);
 		if (!$request->isMethod('POST')) {
 			return new Response('ERROR', 400);
 		}
