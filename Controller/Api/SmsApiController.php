@@ -35,7 +35,7 @@ class SmsApiController extends CommonApiController
      */
     public function initialize(FilterControllerEvent $event)
     {
-        $this->model           = $this->getModel('sms');
+        $this->model           = $this->getModel('vonage.messages');
         $this->entityClass     = 'MauticPlugin\MauticVonageBundle\Entity\Sms';
         $this->entityNameOne   = 'sms';
         $this->entityNameMulti = 'smses';

@@ -560,7 +560,7 @@ class SmsController extends FormController
      */
     public function cloneAction($objectId)
     {
-        $model  = $this->getModel('sms');
+        $model  = $this->getModel('vonage.messages');
         $entity = $model->getEntity($objectId);
 
         if (null != $entity) {
@@ -604,7 +604,7 @@ class SmsController extends FormController
         ];
 
         if ('POST' == $this->request->getMethod()) {
-            $model  = $this->getModel('sms');
+            $model  = $this->getModel('vonage.messages');
             $entity = $model->getEntity($objectId);
 
             if (null === $entity) {
@@ -666,7 +666,7 @@ class SmsController extends FormController
         ];
 
         if ('POST' == $this->request->getMethod()) {
-            $model = $this->getModel('sms');
+            $model = $this->getModel('vonage.messages');
             $ids   = json_decode($this->request->query->get('ids', '{}'));
 
             $deleteIds = [];
@@ -725,7 +725,7 @@ class SmsController extends FormController
     public function previewAction($objectId)
     {
         /** @var \MauticPlugin\MauticVonageBundle\Model\MessagesModel $model */
-        $model    = $this->getModel('sms');
+        $model    = $this->getModel('vonage.messages');
         $sms      = $model->getEntity($objectId);
         $security = $this->get('mautic.security');
 

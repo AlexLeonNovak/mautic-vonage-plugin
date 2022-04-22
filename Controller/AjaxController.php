@@ -25,7 +25,7 @@ class AjaxController extends CommonAjaxController
     protected function getSmsCountStatsAction(Request $request)
     {
         /** @var MessagesModel $model */
-        $model = $this->getModel('sms');
+        $model = $this->getModel('vonage.messages');
         /** @var BroadcastQuery $broadcastQuery */
         $broadcastQuery     = $this->get('mautic.sms.broadcast.query');
         $cacheStorageHelper = $this->get('mautic.helper.cache_storage');
