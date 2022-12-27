@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticVonageBundle\EventListener;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 //use Mautic\AssetBundle\Helper\TokenHelper;
 use DOMDocument;
@@ -35,6 +36,7 @@ use Mautic\PageBundle\Event\PageDisplayEvent;
 use Mautic\PageBundle\PageEvents;
 use MauticPlugin\MauticVonageBundle\Entity\Stat;
 use MauticPlugin\MauticVonageBundle\Entity\StatRepository;
+use MauticPlugin\MauticVonageBundle\Exception\NumberNotFoundException;
 use MauticPlugin\MauticVonageBundle\Helper\ContactHelper;
 use MauticPlugin\MauticVonageBundle\SmsEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -193,7 +195,12 @@ class TrackingSubscriber implements EventSubscriberInterface
 
 		if ($page === $message->getPageUnsubscribe()) {
 			$number = $this->sanitizeNumber($contact->getLeadPhoneNumber());
-			$contacts = $this->contactHelper->findContactsByNumber($number);
+			try {
+				$contacts = $this->contactHelper->findContactsByNumber($number);
+			} catch (NumberNotFoundException $e) {
+				$contacts = new ArrayCollection();
+			}
+			$contacts->set($contact->getId(), $contact);
 			foreach ($contacts as $_contact) {
 				foreach (['message', 'email'] as $channel) {
 					$this->doNotContactModel->addDncForContact(
